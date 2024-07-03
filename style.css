@@ -1,0 +1,100 @@
+:root{
+    --sidebar: #0B0B0B; 
+    --white: #e0dddd;
+    --green: #6CA67E;
+    --background: #1C1D20;
+}
+
+@font-face {
+    font-family: 'Hagrid.ttf';
+    src: url('./fonts/Hagrid.ttf') format('truetype');
+}
+
+*{
+    margin: 0;
+    top: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: var(--white);
+}
+
+body{
+    font-family: 'Hagrid', sans-serif;
+    background-color: var(--background);
+}
+
+aside{
+    position: relative;
+    flex-direction: column;
+    display: flex;
+    height: 100vh;
+    width: 22vw;
+    background-color: var(--sidebar);
+    border-right: 1px solid var(--green);
+}
+
+.top{
+    padding: 20px 0px 0px 20px;
+    display: flex;
+}
+
+.text-top{
+    display: flex;
+    align-items: center;
+    margin-left: 0.6vw;
+}
+
+.top img{
+    border-radius: 100%;
+}
+
+aside h1{
+    padding-top: 6vh;
+    padding-bottom: 5vh;
+    font-size: clamp(0.5em, 2.8rem, 12em);
+    margin-left: 2vw;
+}
+
+ul li{
+    margin-top: 20px;
+    list-style: none;
+}
+
+ul li div{
+    display: flex;
+}
+
+ul li h4{
+    margin-top: 1vh;
+    font-size: clamp(0.5em, 1.1rem, 2em);
+    margin-left: 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+ul li{
+    margin-left: 25%;
+}
+
+.colaboradores{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    margin-top: 10px;
+}
+
+.bottom{
+    margin-top: auto;
+    margin-bottom: 30px;
+}
+
+.bottom h3{
+    text-align: center;
+}
+
+.colaboradores img{
+    border-radius: 100%;
+}
+
+ul li h4:hover{
+    color: var(--green);
+}
