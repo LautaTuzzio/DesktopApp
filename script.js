@@ -5,3 +5,4 @@ function showSection(sectionId) {
 
     document.getElementById(sectionId).style.display = 'block';
 }
+
