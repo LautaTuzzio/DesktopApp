@@ -21,6 +21,7 @@
 body{
     font-family: 'Hagrid', sans-serif;
     background-color: var(--background);
+    display: flex;
 }
 
 aside{
@@ -49,8 +50,8 @@ aside{
 }
 
 aside h1{
-    padding-top: 6vh;
-    padding-bottom: 5vh;
+    padding-top: 7vh;
+    padding-bottom: 4vh;
     font-size: clamp(0.5em, 2.8rem, 12em);
     margin-left: 2vw;
 }
@@ -62,13 +63,12 @@ ul li{
 
 ul li div{
     display: flex;
+    
 }
 
 ul li h4{
-    margin-top: 1vh;
-    font-size: clamp(0.5em, 1.1rem, 2em);
+    font-size: clamp(0.5em, 1.4rem, 2em);
     margin-left: 10px;
-    transition: all 0.2s ease-in-out;
 }
 
 ul li{
@@ -97,4 +97,32 @@ ul li{
 
 ul li h4:hover{
     color: var(--green);
+}
+
+.option{
+    padding-top: 10px;
+    max-width: fit-content;
+}
+
+h4:hover {
+    cursor: pointer;
+    color: var(--green);
+}
+.option:hover svg path {
+    cursor: pointer;
+    fill: var(--green);
+}
+
+.option svg, 
+.option h4,
+.option svg path{
+    transition: all 0.2s ease-in-out;
+}
+
+.content {
+    display: none;
+}
+
+#activity {
+    display: block;
 }
