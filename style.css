@@ -24,7 +24,7 @@ body {
     background-color: var(--background);
     display: flex;
     height: 100vh;
-    overflow: hidden; /* Prevent scrolling on the body */
+    overflow: hidden; 
 }
 
 aside {
@@ -140,7 +140,7 @@ ul li .option.active svg path {
     gap: 50px;
     margin-top: 20px;
     height: 100vh;
-    width: 100%; 
+    width: 60vw; 
 }
 
 .game-holder img {
@@ -160,7 +160,8 @@ main {
     justify-content: center; 
     align-items: center; 
     flex-grow: 1;
-    overflow: auto; 
+    overflow-y: auto; 
+    overflow-x: hidden;
 }
 
 .game {
@@ -178,4 +179,36 @@ main {
     color: var(--white);
     font-size: 1.5rem;
 
+}
+#shop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+}
+
+.content.shop {
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
+    margin-top: 240px;
+}
+
+
+.align {
+    width: 60vw;
+    position: fixed;
+    top: 0;
+    background-color: var(--background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    z-index: 10;
+}
+
+.currency-holder{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }
