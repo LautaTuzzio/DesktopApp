@@ -1,1 +1,1 @@
-# DesktopElectronApp
+Poner esto en htdocs, para habilitar la coneccion a la bd
