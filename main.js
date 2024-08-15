@@ -15,7 +15,7 @@ function createWindow() {
     }
   })
 
-  mainWindow.loadURL('http://localhost/login.php')
+  mainWindow.loadURL('http://localhost/register.php')
 
   ipcMain.on('navigate-to', (event, page) => {
     mainWindow.loadURL(`http://localhost/${page}`)

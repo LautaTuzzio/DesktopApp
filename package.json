@@ -1,5 +1,5 @@
 {
-  "name": "electron-db-testing",
+  "name": "desktop_app",
   "version": "1.0.0",
   "description": "Your Electron app description",
   "main": "main.js",
@@ -17,7 +17,7 @@
   },
   "build": {
     "appId": "com.yourcompany.my-electron-app",
-    "productName": "electron-db-testing",
+    "productName": "desktop_app",
     "directories": {
       "output": "dist"
     },

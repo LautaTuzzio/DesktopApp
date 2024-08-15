@@ -36,17 +36,39 @@ if ($result->num_rows > 0) {
 $sql = "SELECT * FROM actividad WHERE id_user='$id'";
 $result = $conn->query($sql);
 
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $id_user =  $row['id_user'];
-    $id_game =  $row['id_juego'];
-    $archivements =  $row['logro'];
-    $time =  $row['tiempo'];
-    $last_session = date('m/d/y', strtotime($row['ult_ingreso'])); 
+$activities = [];
 
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $activities[] = [
+            'id_user' => $row['id_user'],
+            'id_juego' => $row['id_juego'],
+            'archivements' => $row['logro'],
+            'time' => $row['tiempo'],
+            'last_session' => date('m/d/y', strtotime($row['ult_ingreso'])),
+        ];
+    }
 } else {
-    echo "User not found.";
+    echo "No activities found.";
 }
+
+
+$sql = "SELECT * FROM `juegos` WHERE 1;";
+$result = $conn->query($sql);
+
+$games = []; 
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $games[] = [
+            'id_juego' => $row['id_juego'],
+            'nombre' => $row['nombre'],
+            'img_juego' => $row['img_juego'],
+        ];
+    }
+}
+
+
 
 $conn->close();
 ?>
@@ -231,12 +253,30 @@ $conn->close();
 
 
 </section>
-        <section id="activity" class="content" style="margin-left: 200px;">
-            <div class="profile-top" style="margin-left: -200px">
-                <img src="https://placehold.co/200x260" alt="logo" style="border-radius: 10px">
-                <div class="profile-desc" style="display:flex; flex-direction: column; gap:20px">
-                    <div class="test" style="display: flex;">
-                        <svg width="70px" height="70px" viewBox="0 0 24 24" fill="none"
+<section id="activity" class="content" style="margin-left: 200px;">
+    <?php foreach ($games as $game): ?>
+        <div class="profile-top" style="margin-left: -200px">
+            <img src="<?php echo $game['img_juego']; ?>" alt="logo" style="border-radius: 10px; height:260px; width:200px;">
+            <div class="profile-desc" style="display:flex; flex-direction: column; gap:20px">
+                <?php 
+                $time = "0";
+                $last_session = "N/A";
+                $archivements = "000";
+
+                foreach ($activities as $activity) {
+                    if ($activity['id_juego'] == $game['id_juego']) {
+                        $time = $activity['time'];
+                        $last_session = $activity['last_session'];
+                        $archivements = $activity['archivements'];
+                        break;
+                    }
+                }
+
+                $appears = substr_count($archivements, '1');
+                ?>
+
+                <div class="test" style="display: flex;">
+                <svg width="70px" height="70px" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg" transform="rotate(180)">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -247,13 +287,13 @@ $conn->close();
                                 </path>
                             </g>
                         </svg>
-                        <div class="game-data" style="display: flex; flex-direction: column;">
-                            <h2 style="color:#e0dddd; margin-top:9px; margin-left:-2px;">Last session</h2>
-                            <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $last_session;?></p>
-                        </div>
+                    <div class="game-data" style="display: flex; flex-direction: column;">
+                        <h2 style="color:#e0dddd; margin-top:9px; margin-left:-2px;">Last session</h2>
+                        <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $last_session; ?></p>
                     </div>
-                    <div class="test" style="display: flex;">
-                        <svg style="margin-left:6px" fill="#6CA67E" height="56px" width="56px" version="1.1" id="Capa_1"
+                </div>
+                <div class="test" style="display: flex;">
+                <svg style="margin-left:6px" fill="#6CA67E" height="56px" width="56px" version="1.1" id="Capa_1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             viewBox="0 0 125.668 125.668" xml:space="preserve">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -269,14 +309,13 @@ $conn->close();
                                 </g>
                             </g>
                         </svg>
-                        <div class="game-data"
-                            style="display: flex; flex-direction: column; margin-left:9px; margin-top:3px   ;">
-                            <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Time registered</h2>
-                            <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $time;?></p>
-                        </div>
+                    <div class="game-data" style="display: flex; flex-direction: column; margin-left:9px; margin-top:3px;">
+                        <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Time registered</h2>
+                        <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $time;?></p>
                     </div>
-                    <div class="test" style="display: flex;">
-                        <svg width="70px" height="70px" viewBox="0 0 16 16" version="1.1"
+                </div>
+                <div class="test" style="display: flex;">
+                <svg width="70px" height="70px" viewBox="0 0 16 16" version="1.1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             fill="#000000">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -293,36 +332,21 @@ $conn->close();
                                 </path>
                             </g>
                         </svg>
-                        <div class="game-data" style="display: flex; flex-direction: column; margin-top:5px;">
-                            <h2>Archivements</h2>
-                            <div style="display: flex; margin-top:2px;">
-                                <p style="font-size:0.9em; color:#b4afaf; margin-left:2px">
-                                <?php 
-                                $appears = 0;
-                                $charArray = str_split((int)$archivements);
-                                foreach($charArray as $key){
-                                    if($key == 1){
-                                        $appears +=1 ;
-                                    }
-                                }
-
-                                echo $appears , "/3";
-                                ?>
-
+                    <div class="game-data" style="display: flex; flex-direction: column; margin-top:5px;">
+                        <h2>Achievements</h2>
+                        <div style="display: flex; margin-top:2px;">
+                            <p style="font-size:0.9em; color:#b4afaf; margin-left:2px">
+                                <?php echo $appears; ?>/3
                             </p>
-                                <progress max="3" value=<?php echo $appears?> style="margin-left:4px;"></progress>
-
-                            </div>
+                            <progress max="3" value="<?php echo $appears; ?>" style="margin-left:4px;"></progress>
                         </div>
                     </div>
-
                 </div>
             </div>
+        </div>
+    <?php endforeach; ?>
+</section>
 
-            </div>
-
-
-        </section>
 
         <section id="library" class="content library" style="margin-left:200px;">
             <div class="game-grid-container" style="gap: 60px;">
