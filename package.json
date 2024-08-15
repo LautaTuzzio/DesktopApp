@@ -1,0 +1,28 @@
+{
+  "name": "electron-db-testing",
+  "version": "1.0.0",
+  "description": "Your Electron app description",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^31.0.2",
+    "electron-builder": "^22.8.0"
+  },
+  "build": {
+    "appId": "com.yourcompany.my-electron-app",
+    "productName": "electron-db-testing",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "build/icon.ico"
+    }
+  }
+}

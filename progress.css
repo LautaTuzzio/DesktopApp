@@ -1,0 +1,29 @@
+progress[value] {
+  --color: #6ca67e;
+  --background: #1c1d20;
+  padding: 2px 2px 2px 2px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 2px solid #6ca67e;
+  width: 138px;
+  margin: 0 10px;
+  border-radius: 10em;
+  background: var(--background);
+}
+
+progress[value]::-webkit-progress-bar {
+  border-radius: 10em;
+  background: var(--background);
+}
+
+progress[value]::-webkit-progress-value {
+  border-radius: 10em;
+  background: var(--color);
+}
+
+progress[value]::-moz-progress-bar {
+  border-radius: 10em;
+  background: var(--color);
+}
+
