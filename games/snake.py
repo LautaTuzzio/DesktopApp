@@ -8,8 +8,11 @@ pygame.init()
 height = 480
 width = 720
 
+user_id = sys.argv[1]
 win = pygame.display.set_mode((width, height))
 score_text = pygame.font.SysFont("Russo One",15)
+start_text_font = pygame.font.SysFont("Russo One", 30)
+
 
 class Snake:
     def __init__(self):
@@ -57,6 +60,24 @@ class Snake:
         if score == ((height/10)+(width/10)):
             return True
 
+def start_screen():
+    win.fill((0, 0, 0))
+
+    text = start_text_font.render(f"Press any letter to start", True, (255, 255, 255))
+    instructions = score_text.render("Move with the arrows", True, (255, 255, 255))
+
+    win.blit(text, (width // 2 - text.get_width() // 2, height // 2 - text.get_height() // 2))
+    win.blit(instructions, (width // 2 - instructions.get_width() // 2, height // 2 + text.get_height() // 2 + 20))
+    pygame.display.update()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                waiting = False
 
 def pause():
     DieFont = pygame.font.SysFont('Calibri',40)
@@ -111,7 +132,9 @@ class Apple:
             if block == self.pos:
                 self.generate()
 
+
 def main():
+    start_screen()
     score=0
     max_score=0
     apple = Apple()
@@ -146,36 +169,55 @@ def main():
         apple.draw()
 
         if snake.die():
-            #conexion base de datos 
+    # Database connection
             host = 'localhost'
             database = 'desktopapp'
             user = 'root'
             password = ''
+            
             try:
-                
                 connection = mysql.connector.connect(
                     host=host,
                     database=database,
                     user=user,
                     password=password
-                ) 
+                )
+                
                 if connection.is_connected():
                     cursor = connection.cursor()
                     try:
-                        cursor.execute("SELECT * FROM puntajes;")
-                        for row in cursor.fetchall():
-                            print(row[1])
-                            if score > row[1]:
-                                query_update=f"UPDATE puntajes SET score = '{score}' WHERE 1;" #where id usuario = current_id & game id = game id
-                                cursor.execute(query_update)
+                        query_select = """
+                            SELECT puntaje FROM actividad 
+                            WHERE id_user = %s AND id_juego = 1
+                        """
+                        cursor.execute(query_select, (user_id,))
+                        result = cursor.fetchone() 
+
+                        if result:
+                            current_score = result[0]
+                            if score > current_score:
+                                query_update = """
+                                    UPDATE actividad SET puntaje = %s 
+                                    WHERE id_user = %s AND id_juego = 1
+                                """
+                                cursor.execute(query_update, (score, user_id))
                                 connection.commit()
-                    except Error as e:
-                        print(f"Error al ejecutar la consulta: {e}")
+                        else:
+                            query_insert = """
+                                INSERT INTO actividad (id_user, id_juego, puntaje) 
+                                VALUES (%s, 1, %s)
+                            """
+                            cursor.execute(query_insert, (user_id, score))
+                            connection.commit()
+
+                    except mysql.connector.Error as e:
+                        print(f"Error executing the query: {e}")
                     finally:
                         cursor.close()
                         connection.close()
-            except Error as e:
-                print(f"Error al conectar a MySQL: {e}")
+                        
+            except mysql.connector.Error as e:
+                print(f"Error connecting to MySQL: {e}")
             
             score,apple,snake,fps=pause()
             

@@ -23,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
         if ($pass === $row['password']) {
             $_SESSION['username'] = $user;
+            
             $_SESSION['logStatus']= "True";
             header("Location: index.php");
         } else {

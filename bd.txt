@@ -13,41 +13,30 @@ CREATE TABLE `actividad` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `actividad` (`id_user`, `id_juego`, `logro`, `estilos`, `tiempo`, `ult_ingreso`, `puntaje`) VALUES
-(1, 1, 100, 1, '10:15:20', '2024-08-17', 45),
-(2, 1, 101, 2, '11:20:30', '2024-08-17', 120),
-(3, 1, 110, 1, '12:30:40', '2024-08-17', 75),
-(4, 1, 11, 3, '13:45:50', '2024-08-17', 90),
-(5, 1, 111, 2, '14:55:10', '2024-08-17', 150),
-(6, 1, 1, 1, '15:05:15', '2024-08-17', 60),
-(7, 1, 10, 3, '16:15:25', '2024-08-17', 200),
-(8, 1, 11, 2, '17:25:35', '2024-08-17', 85),
-(9, 1, 100, 1, '18:35:45', '2024-08-17', 35),
-(10, 1, 111, 3, '19:45:55', '2024-08-17', 170);
+(2, 1, 101, 1, '12:10:28', '2024-08-17', 3),
+(2, 2, 100, 0, '19:30:40', '2024-08-16', 10);
 
 CREATE TABLE `juegos` (
   `id_juego` int(11) NOT NULL,
   `nombre` varchar(33) NOT NULL,
-  `img_juego` varchar(200) NOT NULL,
-  `url` varchar(255) DEFAULT NULL
+  `img_juego` varchar(200) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `juegos` (`id_juego`, `nombre`, `img_juego`, `url`) VALUES
-(1, 'Snake', 'https://i0.wp.com/imgs.hipertextual.com/wp-content/uploads/2019/02/hipertextual-snake-juego-mas-popular-nokia-2019151135.jpg?fit=1500%2C1000&quality=50&strip=all&ssl=1', 'snake.php');
+INSERT INTO `juegos` (`id_juego`, `nombre`, `img_juego`) VALUES
+(1, 'Snake', 'https://i0.wp.com/imgs.hipertextual.com/wp-content/uploads/2019/02/hipertextual-snake-juego-mas-popular-nokia-2019151135.jpg?fit=1500%2C1000&quality=50&strip=all&ssl=1'),
+(2, 'jose', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3vrTUU3CKbUDThpm8aZzFXdTmai6PodNfXA&s'),
+(4, 'wasd', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWi29mOalQDV_Z3OQs5RojJxdAZhjnDjSMYg&s');
 
 CREATE TABLE `logros` (
   `id_logro` int(11) NOT NULL,
   `nombre` varchar(33) NOT NULL,
   `reto` varchar(33) NOT NULL,
   `id_juego` int(11) NOT NULL,
-  `recompensa` int(11) NOT NULL,
-  `img` varchar(255) NOT NULL,
-  `Completado` tinyint(1) NOT NULL
+  `recompensa` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `logros` (`id_logro`, `nombre`, `reto`, `id_juego`, `recompensa`, `img`, `Completado`) VALUES
-(4, 'We\'re just starting', 'Eat your first apple', 1, 1, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp', 0),
-(5, 'Getting better', 'Eat 20 apples', 1, 10, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp', 0),
-(6, 'Winner!', 'Eat all of the apples', 1, 100, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp', 0);
+INSERT INTO `logros` (`id_logro`, `nombre`, `reto`, `id_juego`, `recompensa`) VALUES
+(3, 'test', 'jsoe', 2, 2);
 
 CREATE TABLE `objetos` (
   `id_objeto` int(11) NOT NULL,
@@ -56,6 +45,10 @@ CREATE TABLE `objetos` (
   `precio` int(11) NOT NULL,
   `id_juego` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `objetos` (`id_objeto`, `url_img`, `nombre`, `precio`, `id_juego`) VALUES
+(1, 'https://static.vecteezy.com/system/resources/previews/002/471/993/non_2x/spaceship-and-planets-in-poster-vintage-style-vector.jpg', 'Nave Especial ', 1000, 1),
+(2, 'https://play-lh.googleusercontent.com/v8w4fmZli_DKkn9tN5P_tr0Wvky4zVjSf0pmd9VATiRJV-yfpI9cDwnpAMmpMh3tz94', 'Snake 2.0', 1500, 2);
 
 CREATE TABLE `usuario` (
   `id_user` int(11) NOT NULL,
@@ -68,22 +61,20 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`id_user`, `name_user`, `mail`, `password`, `registration_date`, `monedas`) VALUES
 (1, 'josega', '1234@gmail.com', '123', '2024-08-12', 0),
-(2, 'johndoe', '124@gmail.com', 'asd', '2024-08-12', 10000),
-(3, 'janedoe', 'wasd@gmail.com', '124', '2024-08-12', 0),
-(4, 'willsmith', 'wasd@gmail.com', 'wasd', '2024-08-12', 0),
-(5, 'mazijones', '12341@gmail.com', '1243', '2024-08-13', 0),
-(6, 'peterparker', 'cuack@gmail.com', '123', '2024-08-15', 0),
-(7, 'admin', '123@gmail.com', 'asd', '2024-08-15', 0),
-(8, 'andrewsmith', '123@gmail.com', '123', '2024-08-15', 0),
-(9, 'josephwhite', 'asd@gmail.com', 'asd', '2024-08-15', 0),
-(10, 'jamesbond', 'jsoefga@gmail.com', '123', '2024-08-15', 0),
-(18, 'testting', 'test@gmail.com', '1234', '2024-08-18', 0);
+(2, '12344', '124@gmail.com', 'asd', '2024-08-12', 10000),
+(3, '1234', 'wasd@gmail.com', '124', '2024-08-12', 0),
+(4, 'wasd', 'wasd@gmail.com', 'wasd', '2024-08-12', 0),
+(5, 'mazi', '12341@gmail.com', '1243', '2024-08-13', 0),
+(6, 'pato', 'cuack@gmail.com', '123', '2024-08-15', 0),
+(7, 'asd', '123@gmail.com', 'asd', '2024-08-15', NULL),
+(8, 'asd', '123@gmail.com', '123', '2024-08-15', NULL),
+(9, 'josefa', 'asd@gmail.com', 'asd', '2024-08-15', NULL),
+(10, '123', 'jsoefga@gmail.com', '123', '2024-08-15', NULL);
 
 
 ALTER TABLE `actividad`
-  ADD PRIMARY KEY (`id_user`,`id_juego`),
-  ADD KEY `id_user` (`id_user`),
-  ADD KEY `id_juego_2` (`id_juego`);
+  ADD UNIQUE KEY `id_juego` (`id_juego`),
+  ADD KEY `id_user` (`id_user`);
 
 ALTER TABLE `juegos`
   ADD PRIMARY KEY (`id_juego`);
@@ -104,13 +95,13 @@ ALTER TABLE `juegos`
   MODIFY `id_juego` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 ALTER TABLE `logros`
-  MODIFY `id_logro` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_logro` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 ALTER TABLE `objetos`
   MODIFY `id_objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 ALTER TABLE `usuario`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 
 ALTER TABLE `actividad`

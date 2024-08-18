@@ -1,10 +1,38 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['username'])) {
+    header("Location: register.php");
+    exit;
+}
+
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "desktopapp";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$currentUser = $_SESSION['username'];
+$sql = "SELECT * FROM usuario WHERE name_user='$currentUser' OR mail='$currentUser'";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $id_usuario = $row['id_user'];
+    $name = $row['name_user'];
+    $email = $row['mail'];
+    $password = $row['password'];
+    $registrationDate = date('m/d/y', strtotime($row['registration_date']));
+    $coins = $row['monedas'];
+} else {
+    echo "User not found.";
+    exit;
+}
 
 $game_id = 1;
 
@@ -54,7 +82,8 @@ $result_achievements = $conn->query($sql_achievements);
                 if ($result_leaderboard->num_rows > 0) {
                     $rank = 1;
                     while ($row = $result_leaderboard->fetch_assoc()) {
-                        echo "<li>{$rank}. {$row['name_user']}</span><span>{$row['puntaje']} PTS</span></li>";
+                        $highlightClass = ($row['name_user'] === $currentUser) ? 'highlight' : '';
+                        echo "<li class='$highlightClass'>{$rank}. {$row['name_user']}<span>{$row['puntaje']} PTS</span></li>";
                         $rank++;
                     }
                 } else {
@@ -100,21 +129,20 @@ $result_achievements = $conn->query($sql_achievements);
     </div>
 
     <script>
-        // Usamos la api de electron directamente para poder entrar (esperamos 3 parametros, err [error], stdout[salida], sterr[salida si error])
         document.getElementById('playGame').addEventListener('click', function(e) {
-            e.preventDefault();
-            const { exec } = require('child_process');
-            exec('python ./games/snake.py', (err, stdout, stderr) => {
-               /* if (err) {
-                    console.error(`Error: ${err}`);
-                    return;
+            e.preventDefault()
+            const { exec } = require('child_process')
+            const userId = <?php echo $id_usuario ?>
+            exec(`python ./games/snake.py ${userId}`, (err, stdout, stderr) => {
+                if (err) {
+                    console.error(`Error: ${err}`)
+                    return
                 }
-                console.log(`Output: ${stdout}`);
-                console.error(`Error Output: ${stderr}`); debugging */ 
+                console.log(`Output: ${stdout}`)
+                console.error(`Error Output: ${stderr}`)
             });
         });
     </script>
-        
-</body>
 
+</body>
 </html>
