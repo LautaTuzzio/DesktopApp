@@ -169,7 +169,7 @@ def main():
         apple.draw()
 
         if snake.die():
-    # Database connection
+    # conexion a la base de datos
             host = 'localhost'
             database = 'desktopapp'
             user = 'root'
