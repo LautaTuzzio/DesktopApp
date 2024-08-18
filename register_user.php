@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pass = $conn->real_escape_string($_POST['password']);
     $registrationDate = date('Y-m-d'); 
 
-    $sql = "INSERT INTO usuario (name_user, mail, password, registration_date) VALUES ('$user', '$email', '$pass', '$registrationDate')";
+    $sql = "INSERT INTO usuario (name_user, mail, password, registration_date, monedas) VALUES ('$user', '$email', '$pass', '$registrationDate', '0')";
 
     if ($conn->query($sql) === TRUE) {
         $_SESSION['username'] = $user; 

@@ -5,7 +5,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1160,
     height: 800,
-    resizable: true,
+    resizable: false,
     frame: true, 
 
     webPreferences: {

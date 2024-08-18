@@ -348,34 +348,35 @@ $conn->close();
 </section>
 
 
-        <section id="library" class="content library" style="margin-left:200px;">
+        <section id="library" class="content library" style="margin-right: 60px">
             <div class="game-grid-container" style="gap: 60px;">
             
             <?php
-                $servername = "localhost";
-                $username = "root";
-                $password = "";
-                $dbname = "desktopapp";
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "desktopapp";
 
-                $conn = new mysqli($servername, $username, $password, $dbname);
-                
-                $sql = "SELECT * FROM juegos WHERE 1";
-                $result = $conn->query($sql);
+            $conn = new mysqli($servername, $username, $password, $dbname);
 
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
-                        echo <<<JUEGO
-                            <div class="game-holder">
-                                <img src="$row[img_juego]" alt="logo" style=" height:260px; width:200px; border-radius: 10px">
-                                <p style="margin-top:5px; margin-left:15px; font-size: 1.3em;">{$row['nombre']}</p>
-                            </div>
-                        JUEGO;
-                    }
-                } else {
-                    echo "0 results";
-                }  
-                $conn->close();
+            $sql = "SELECT * FROM juegos WHERE 1";
+            $result = $conn->query($sql);
+
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    echo <<<JUEGO
+                        <div class="game-holder" style="cursor: pointer;" onclick="window.location.href='{$row['url']}'">
+                            <img src="{$row['img_juego']}" alt="logo" style="height:260px; width:200px; border-radius: 10px">
+                            <p style="margin-top:5px; margin-left:15px; font-size: 1.3em;">{$row['nombre']}</p>
+                        </div>
+                    JUEGO;
+                }
+            } else {
+                echo "0 results";
+            }
+            $conn->close();
             ?>
+
 
 
 
