@@ -202,6 +202,6 @@ body {
 .animated-text li:nth-child(4) { animation-delay: 3s; }
 
 .highlight {
-  color: var(--green);
+  color: var(--green); 
   font-weight: bold;
 }

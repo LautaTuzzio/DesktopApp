@@ -1,3 +1,1 @@
-TODO:
-    Terminar el snake
-    
+Maten a lauti.com

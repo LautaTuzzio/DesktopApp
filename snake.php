@@ -1,11 +1,6 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['username'])) {
-    header("Location: register.php");
-    exit;
-}
-
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -60,6 +55,7 @@ $result_achievements = $conn->query($sql_achievements);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="pregame.css">
     <title>Snake</title>
+    
 </head>
 
 <body>
@@ -140,8 +136,8 @@ $result_achievements = $conn->query($sql_achievements);
                 }
                 console.log(`Output: ${stdout}`)
                 console.error(`Error Output: ${stderr}`)
-            });
-        });
+            })
+        })
     </script>
 
 </body>
