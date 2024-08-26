@@ -125,20 +125,10 @@ $result_achievements = $conn->query($sql_achievements);
     </div>
 
     <script>
-        document.getElementById('playGame').addEventListener('click', function(e) {
-            e.preventDefault()
-            const { exec } = require('child_process')
-            const userId = <?php echo $id_usuario ?>
-            exec(`python ./games/snake.py ${userId}`, (err, stdout, stderr) => {
-                if (err) {
-                    console.error(`Error: ${err}`)
-                    return
-                }
-                console.log(`Output: ${stdout}`)
-                console.error(`Error Output: ${stderr}`)
-            })
-        })
+    const userId = <?php echo $id_usuario; ?>
     </script>
+    <script src="snakeRender.js"></script>
+
 
 </body>
 </html>
