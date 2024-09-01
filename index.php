@@ -29,6 +29,7 @@ if ($result->num_rows > 0) {
     $password = $row['password'];
     $registrationDate = date('m/d/y', strtotime($row['registration_date'])); 
     $coins = $row['monedas'];
+    $pfp = $row['current_profile_picture'];
 } else {
     echo "User not found.";
 }
@@ -53,7 +54,7 @@ if ($result->num_rows > 0) {
 }
 
 
-$sql = "SELECT * FROM `juegos` WHERE 1;";
+$sql = "SELECT * FROM `juegos` WHERE id_juego >= 1;";
 $result = $conn->query($sql);
 
 $games = []; 
@@ -89,7 +90,7 @@ $conn->close();
 
     <aside>
         <div class="top">
-            <img src="https://placehold.co/60" alt="logo">
+            <img id="user-pfp" src="<?php echo $pfp; ?>" height="60px"  alt="logo">
             <div class="text-top">
                 <h3><?php echo htmlspecialchars($name); ?></h3>
             </div>
@@ -220,20 +221,18 @@ $conn->close();
             </div>
         </div>
     </aside>
-
     <main>
 
-
-<section id="profile" class="content" style="margin-left:200px;">
-    <div class="profile-top">
-        <img src="https://placehold.co/200" alt="logo">
+    <section id="profile" class="content" style="margin-left:200px;">
+    <div class="profile-top" onclick="openPopup()">
+        <img id="user-pfp" src="<?php echo $pfp; ?>" height="200px" alt="logo">
         <div class="profile-desc">
             <h1><?php echo htmlspecialchars($name); ?></h1>
             <h3>Registration date: <?php echo htmlspecialchars($registrationDate); ?></h3>
         </div>
     </div>
 
-    <div class="profile-personal">
+    <div class="profile-personal" onclick="openPopup()">
         <h1>Account Info</h1>
         <div class="detail-holder">
             <label for="email">Email</label>
@@ -250,9 +249,50 @@ $conn->close();
         </div>
     </div>
 
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <h2 style="text-align: center; color: #e0dddd; margin-bottom: 20px; ">Profile Pictures</h2>
+                <div class="pfp-holder" style="display: flex; justify-content:center; align-items:center; gap:20px;">
+                <?php
+                    $servername = "localhost";
+                    $username = "root";
+                    $password = "";
+                    $dbname = "desktopapp";
 
+                    $conn = new mysqli($servername, $username, $password, $dbname);
+
+                    if ($conn->connect_error) {
+                        die("Connection failed: " . $conn->connect_error);
+                    }
+
+                    $sql = "SELECT * FROM objetos WHERE userID = $id AND id_juego = 0";
+                    $result = $conn->query($sql);
+
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            $isBought = $row['comprado'] == 1;
+
+                            $imageClass = $isBought ? "bought" : "not-bought";
+                            
+                            echo '<div class="image-container ' . $imageClass . '">';
+                            echo '<img src="' . htmlspecialchars($row['url_img']) . '" alt="' . htmlspecialchars($row['nombre']) . '" style="max-width:100%;height:auto;margin-bottom:10px;" onclick="updateProfilePicture(\'' . htmlspecialchars($row['url_img']) . '\', ' . ($isBought ? 'true' : 'false') . ')">';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo "<p>No images found.</p>";
+                    }
+
+                    $conn->close();
+                ?>
+            </div>
+        </div>
+    </div>
 
 </section>
+
+
+
 <section id="activity" class="content" style="margin-left: 200px;">
     <?php foreach ($games as $game): ?>
         <div class="profile-top" style="margin-left: -200px">
@@ -359,7 +399,7 @@ $conn->close();
 
             $conn = new mysqli($servername, $username, $password, $dbname);
 
-            $sql = "SELECT * FROM juegos WHERE 1";
+            $sql = "SELECT * FROM juegos WHERE id_juego >= 1";
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
@@ -420,44 +460,61 @@ $conn->close();
                 $dbname = "desktopapp";
 
                 $conn = new mysqli($servername, $username, $password, $dbname);
-                
-                $sql = "SELECT * FROM objetos WHERE 1";
+
+                $sql = "SELECT * FROM objetos WHERE userID = $id";
+                $_SESSION['userID'] = $id;
                 $result = $conn->query($sql);
 
                 if ($result->num_rows > 0) {
                     while($row = $result->fetch_assoc()) {
-                        echo <<<TIENDA
-                            <div class="game-holder">
-                                <img src="$row[url_img]" alt="logo" style=" height:260px; width:200px; border-radius: 10px">
-                                <p style="margin-top:5px; font-size: 1.3em;">{$row['nombre']}</p>
+                        $id_objeto = $row['id_objeto'];
+                        $comprado = $row['comprado'];
+                        $precio = $row['precio'];
+                        $blackoutClass = $comprado ? 'blackout' : '';
+                        $display = $comprado ? 'none' : 'block';
+                        $blackoutText = $comprado ? '<div class="blackout-text">Comprado</div>' : '';
+ 
 
-                                <div class="price-holder">
-                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        <path
-                                            d="M11.5805 4.77604C12.2752 3.00516 12.6226 2.11971 13.349 2.01056C14.0755 1.90141 14.6999 2.64083 15.9488 4.11967L16.2719 4.50226C16.6268 4.9225 16.8042 5.13263 17.0455 5.25261C17.2868 5.37259 17.5645 5.38884 18.1201 5.42135L18.6258 5.45095C20.5808 5.56537 21.5583 5.62258 21.8975 6.26168C22.2367 6.90079 21.713 7.69853 20.6656 9.29403L20.3946 9.7068C20.097 10.1602 19.9482 10.3869 19.908 10.6457C19.8678 10.9045 19.9407 11.1662 20.0866 11.6895L20.2195 12.166C20.733 14.0076 20.9898 14.9284 20.473 15.4325C19.9562 15.9367 19.0081 15.6903 17.1118 15.1975L16.6213 15.07C16.0824 14.93 15.813 14.86 15.5469 14.8999C15.2808 14.9399 15.0481 15.0854 14.5828 15.3763L14.1591 15.6412C12.5215 16.6649 11.7027 17.1768 11.0441 16.8493C10.3854 16.5217 10.3232 15.5717 10.1987 13.6717L10.1665 13.1801C10.1311 12.6402 10.1134 12.3702 9.98914 12.1361C9.86488 11.902 9.64812 11.7302 9.21459 11.3867L8.8199 11.0739C7.29429 9.86506 6.53149 9.26062 6.64124 8.55405C6.751 7.84748 7.66062 7.50672 9.47988 6.8252L9.95054 6.64888C10.4675 6.45522 10.726 6.35839 10.9153 6.17371C11.1046 5.98903 11.2033 5.73742 11.4008 5.23419L11.5805 4.77604Z"
-                                            fill="#6CA67E"></path>
-                                        <g opacity="0.5">
+                        echo <<<TIENDA
+                        <div class="game-holder $blackoutClass" style="position: relative;">
+                            <a href="comprar.php?id_objeto=$id_objeto&precio=$precio" style="display:block; text-decoration:none; color:inherit;">
+                                <img src="{$row['url_img']}" alt="logo" style="height:260px; width:200px; border-radius: 10px;">
+                                <p style="margin-top:5px; font-size: 1.3em; display: $display;">{$row['nombre']}</p>
+                                <div class="price-holder" style="display: $display;">
+                                    <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                        <g id="SVGRepo_iconCarrier">
                                             <path
-                                                d="M5.31003 9.59277C2.87292 11.9213 1.27501 15.8058 2.33125 22.0002C3.27403 19.3966 5.85726 17.2407 8.91219 15.9528C8.80559 15.3601 8.7583 14.6364 8.70844 13.8733L8.66945 13.2782C8.66038 13.1397 8.65346 13.0347 8.64607 12.9443C8.643 12.9068 8.64012 12.8754 8.63743 12.8489C8.61421 12.829 8.58591 12.8053 8.55117 12.7769C8.47874 12.7177 8.39377 12.6503 8.28278 12.5623L7.80759 12.1858C7.11448 11.6368 6.46884 11.1254 6.02493 10.6538C5.77182 10.385 5.48876 10.0304 5.31003 9.59277Z"
+                                                d="M11.5805 4.77604C12.2752 3.00516 12.6226 2.11971 13.349 2.01056C14.0755 1.90141 14.6999 2.64083 15.9488 4.11967L16.2719 4.50226C16.6268 4.9225 16.8042 5.13263 17.0455 5.25261C17.2868 5.37259 17.5645 5.38884 18.1201 5.42135L18.6258 5.45095C20.5808 5.56537 21.5583 5.62258 21.8975 6.26168C22.2367 6.90079 21.713 7.69853 20.6656 9.29403L20.3946 9.7068C20.097 10.1602 19.9482 10.3869 19.908 10.6457C19.8678 10.9045 19.9407 11.1662 20.0866 11.6895L20.2195 12.166C20.733 14.0076 20.9898 14.9284 20.473 15.4325C19.9562 15.9367 19.0081 15.6903 17.1118 15.1975L16.6213 15.07C16.0824 14.93 15.813 14.86 15.5469 14.8999C15.2808 14.9399 15.0481 15.0854 14.5828 15.3763L14.1591 15.6412C12.5215 16.6649 11.7027 17.1768 11.0441 16.8493C10.3854 16.5217 10.3232 15.5717 10.1987 13.6717L10.1665 13.1801C10.1311 12.6402 10.1134 12.3702 9.98914 12.1361C9.86488 11.902 9.64812 11.7302 9.21459 11.3867L8.8199 11.0739C7.29429 9.86506 6.53149 9.26062 6.64124 8.55405C6.751 7.84748 7.66062 7.50672 9.47988 6.8252L9.95054 6.64888C10.4675 6.45522 10.726 6.35839 10.9153 6.17371C11.1046 5.98903 11.2033 5.73742 11.4008 5.23419L11.5805 4.77604Z"
                                                 fill="#6CA67E"></path>
-                                            <path
-                                                d="M10.3466 15.4231C10.3415 15.3857 10.3365 15.3475 10.3316 15.3086L10.3877 15.41C10.374 15.4144 10.3603 15.4187 10.3466 15.4231Z"
-                                                fill="#6CA67E"></path>
+                                            <g opacity="0.5">
+                                                <path
+                                                    d="M5.31003 9.59277C2.87292 11.9213 1.27501 15.8058 2.33125 22.0002C3.27403 19.3966 5.85726 17.2407 8.91219 15.9528C8.80559 15.3601 8.7583 14.6364 8.70844 13.8733L8.66945 13.2782C8.66038 13.1397 8.65346 13.0347 8.64607 12.9443C8.643 12.9068 8.64012 12.8754 8.63743 12.8489C8.61421 12.829 8.58591 12.8053 8.55117 12.7769C8.47874 12.7177 8.39377 12.6503 8.28278 12.5623L7.80759 12.1858C7.11448 11.6368 6.46884 11.1254 6.02493 10.6538C5.77182 10.385 5.48876 10.0304 5.31003 9.59277Z"
+                                                    fill="#6CA67E"></path>
+                                                <path
+                                                    d="M10.3466 15.4231C10.3415 15.3857 10.3365 15.3475 10.3316 15.3086L10.3877 15.41C10.374 15.4144 10.3603 15.4187 10.3466 15.4231Z"
+                                                    fill="#6CA67E"></path>
+                                            </g>
                                         </g>
-                                    </g>
-                                </svg>
-                                <span>{$row['precio']}</span></div>
+                                    </svg>
+                                    <span class="number">{$row['precio']}</span>
+                                </div>
+                            </a>
+                            <div class="blackout">
+                                $blackoutText
                             </div>
+                        </div>
                         TIENDA;
                     }
                 } else {
                     echo "0 results";
-                }  
+                }
+
                 $conn->close();
             ?>
+
+
 
 
 
@@ -475,6 +532,34 @@ $conn->close();
                 passwordField.type = "password"
             }
         }
+        function openPopup() {
+        var popup = document.getElementById("popup");
+        popup.style.display = "block";
+        }
+
+        function closePopup() {
+            var popup = document.getElementById("popup");
+            popup.style.display = "none";
+        }
+
+        function updateProfilePicture(imageUrl, isBought) {
+        if (isBought) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "update_profile_picture.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var placeholders = document.querySelectorAll("#user-pfp");
+                    placeholders.forEach(function(placeholder) {
+                        placeholder.src = imageUrl;
+                    });
+                }
+            };
+            xhr.send("newProfilePicture=" + encodeURIComponent(imageUrl));
+        } else {
+            alert("This picture is not unlocked yet!");
+        }
+    }
     </script>
 </body>
 

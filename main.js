@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 
 function createWindow() {
@@ -21,7 +21,7 @@ function createWindow() {
     mainWindow.loadURL(`http://localhost/${page}`)
   })
 
-  // Menu.setApplicationMenu(null)
+ // Menu.setApplicationMenu(null)
 }
 
 app.whenReady().then(() => {

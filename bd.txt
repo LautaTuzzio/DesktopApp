@@ -13,20 +13,24 @@ CREATE TABLE `actividad` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `actividad` (`id_user`, `id_juego`, `logro`, `estilos`, `tiempo`, `ult_ingreso`, `puntaje`) VALUES
-(1, 1, 100, 1, '10:15:20', '2024-08-17', 4),
+(1, 1, 100, 1, '10:15:27', '2024-08-19', 4),
 (2, 1, 101, 2, '11:20:30', '2024-08-17', 7),
 (3, 1, 110, 1, '12:30:40', '2024-08-17', 20),
 (4, 1, 11, 3, '13:45:50', '2024-08-17', 8),
 (5, 1, 111, 2, '14:55:10', '2024-08-17', 5),
-(6, 1, 1, 1, '15:05:15', '2024-08-17', 4),
-(7, 1, 10, 3, '16:15:25', '2024-08-17', 2),
+(6, 1, 11, 1, '00:00:00', '2024-09-01', 23),
+(7, 1, 11, 3, '00:00:00', '2024-09-01', 24),
 (8, 1, 11, 2, '17:25:35', '2024-08-17', 10),
+(9, 1, 1, 0, '00:00:00', '2024-09-01', 10),
 (10, 1, 111, 3, '19:45:55', '2024-08-17', 0),
 (21, 1, 0, 0, '00:00:00', '0000-00-00', 2),
 (22, 1, 0, 0, '00:00:00', '0000-00-00', 2),
 (23, 1, 0, 0, '00:00:00', '0000-00-00', 21),
 (24, 1, 0, 0, '00:00:08', '2024-08-19', 2),
-(25, 1, 0, 0, '00:00:01', '2024-08-19', 0);
+(25, 1, 0, 0, '00:00:01', '2024-08-19', 0),
+(26, 1, 0, 0, '00:00:10', '2024-08-19', 4),
+(29, 1, 11, 0, '00:00:33', '2024-09-01', 23),
+(31, 1, 11, 0, '00:00:00', '2024-09-01', 23);
 
 CREATE TABLE `juegos` (
   `id_juego` int(11) NOT NULL,
@@ -36,6 +40,7 @@ CREATE TABLE `juegos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `juegos` (`id_juego`, `nombre`, `img_juego`, `url`) VALUES
+(0, 'None', '', NULL),
 (1, 'Snake', 'https://i0.wp.com/imgs.hipertextual.com/wp-content/uploads/2019/02/hipertextual-snake-juego-mas-popular-nokia-2019151135.jpg?fit=1500%2C1000&quality=50&strip=all&ssl=1', 'snake.php');
 
 CREATE TABLE `logros` (
@@ -44,22 +49,27 @@ CREATE TABLE `logros` (
   `reto` varchar(33) NOT NULL,
   `id_juego` int(11) NOT NULL,
   `recompensa` int(11) NOT NULL,
-  `img` varchar(255) NOT NULL,
-  `Completado` tinyint(1) NOT NULL
+  `img` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `logros` (`id_logro`, `nombre`, `reto`, `id_juego`, `recompensa`, `img`, `Completado`) VALUES
-(4, 'We\'re just starting', 'Eat your first apple', 1, 1, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp', 0),
-(5, 'Getting better', 'Eat 20 apples', 1, 10, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp', 0),
-(6, 'Winner!', 'Eat all of the apples', 1, 100, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp', 0);
+INSERT INTO `logros` (`id_logro`, `nombre`, `reto`, `id_juego`, `recompensa`, `img`) VALUES
+(4, 'We\'re just starting', 'Eat your first apple', 1, 1, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
+(5, 'Getting better', 'Eat 20 apples', 1, 10, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
+(6, 'Winner!', 'Eat all of the apples', 1, 100, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp');
 
 CREATE TABLE `objetos` (
   `id_objeto` int(11) NOT NULL,
   `url_img` varchar(400) NOT NULL,
   `nombre` varchar(33) NOT NULL,
   `precio` int(11) NOT NULL,
-  `id_juego` int(11) NOT NULL
+  `id_juego` int(11) NOT NULL,
+  `userID` int(11) NOT NULL,
+  `comprado` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `objetos` (`id_objeto`, `url_img`, `nombre`, `precio`, `id_juego`, `userID`, `comprado`) VALUES
+(1, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 29, 1),
+(2, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 31, 1);
 
 CREATE TABLE `usuario` (
   `id_user` int(11) NOT NULL,
@@ -67,28 +77,35 @@ CREATE TABLE `usuario` (
   `mail` varchar(33) NOT NULL,
   `password` varchar(33) NOT NULL,
   `registration_date` date NOT NULL,
-  `monedas` int(11) DEFAULT NULL
+  `monedas` int(11) DEFAULT NULL,
+  `current_profile_picture` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `usuario` (`id_user`, `name_user`, `mail`, `password`, `registration_date`, `monedas`) VALUES
-(1, 'josega', '1234@gmail.com', '123', '2024-08-12', 0),
-(2, 'johndoe', '124@gmail.com', 'asd', '2024-08-12', 10000),
-(3, 'janedoe', 'wasd@gmail.com', '124', '2024-08-12', 0),
-(4, 'willsmith', 'wasd@gmail.com', 'wasd', '2024-08-12', 0),
-(5, 'mazijones', '12341@gmail.com', '1243', '2024-08-13', 0),
-(6, 'peterparker', 'cuack@gmail.com', '123', '2024-08-15', 0),
-(7, 'admin', '123@gmail.com', 'asd', '2024-08-15', 0),
-(8, 'andrewsmith', '123@gmail.com', '123', '2024-08-15', 0),
-(9, 'josephwhite', 'asd@gmail.com', 'asd', '2024-08-15', 0),
-(10, 'jamesbond', 'jsoefga@gmail.com', '123', '2024-08-15', 0),
-(18, 'testting', 'test@gmail.com', '1234', '2024-08-18', 0),
-(19, 'josefina', 'josefina@gmail.com', 'josefina', '2024-08-18', 0),
-(20, 'test', 'test@gmail.com', 'test', '2024-08-18', 0),
-(21, 'justtesting', 'asd@gmail.com', '1234', '2024-08-18', 0),
-(22, 'wasdwasd', 'wasdwasd@gmail.com', 'wasdwasd', '2024-08-18', 0),
-(23, 'confirmar', 'confirmar@gmail.com', '1234', '2024-08-18', 0),
-(24, 'josfgbnisdfg', 'baisdbah@gmail.com', 'byshdgfbysg', '2024-08-19', 0),
-(25, 'dgfhnudfgnhujdfhnu', 'bnuisdfgbi@gmail.com', 'nuidfghdfgh', '2024-08-19', 0);
+INSERT INTO `usuario` (`id_user`, `name_user`, `mail`, `password`, `registration_date`, `monedas`, `current_profile_picture`) VALUES
+(1, 'josega', '1234@gmail.com', '123', '2024-08-12', 0, ''),
+(2, 'johndoe', '124@gmail.com', 'asd', '2024-08-12', 10000, ''),
+(3, 'janedoe', 'wasd@gmail.com', '124', '2024-08-12', 0, ''),
+(4, 'willsmith', 'wasd@gmail.com', 'wasd', '2024-08-12', 0, ''),
+(5, 'mazijones', '12341@gmail.com', '1243', '2024-08-13', 0, ''),
+(6, 'peterparker', 'cuack@gmail.com', '123', '2024-08-15', 0, ''),
+(7, 'admin', '123@gmail.com', 'asd', '2024-08-15', 0, ''),
+(8, 'andrewsmith', '123@gmail.com', '123', '2024-08-15', 0, ''),
+(9, 'josephwhite', 'asd@gmail.com', 'asd', '2024-08-15', 0, ''),
+(10, 'jamesbond', 'jsoefga@gmail.com', '123', '2024-08-15', 0, ''),
+(18, 'testting', 'test@gmail.com', '1234', '2024-08-18', 0, ''),
+(19, 'josefina', 'josefina@gmail.com', 'josefina', '2024-08-18', 0, ''),
+(20, 'test', 'test@gmail.com', 'test', '2024-08-18', 0, ''),
+(21, 'justtesting', 'asd@gmail.com', '1234', '2024-08-18', 0, ''),
+(22, 'wasdwasd', 'wasdwasd@gmail.com', 'wasdwasd', '2024-08-18', 0, ''),
+(23, 'confirmar', 'confirmar@gmail.com', '1234', '2024-08-18', 0, ''),
+(24, 'josfgbnisdfg', 'baisdbah@gmail.com', 'byshdgfbysg', '2024-08-19', 0, ''),
+(25, 'dgfhnudfgnhujdfhnu', 'bnuisdfgbi@gmail.com', 'nuidfghdfgh', '2024-08-19', 0, ''),
+(26, 'dsfngiusdfgh', 'buiasdfbu@gmail.com', '123', '2024-08-19', 0, ''),
+(27, 'dfngisdnghu', 'yuiasdfgbysdfgb@gmail.com', '1234', '2024-08-19', 0, ''),
+(28, 'fdghdfnhnudfg9', 'nusdfgsdn9ug@gmail.com', '1234', '2024-08-19', 0, ''),
+(29, 'snaketest', 'test@gmail.com', '1234', '2024-09-01', 0, 'https://st4.depositphotos.com/4329009/19956/v/450/depositphotos_199564354-stock-illustration-creative-vector-illustration-default-avatar.jpg'),
+(30, 'wasdwasdwasd', 'anuisdfgbni@gmail.com', 'bysdfgb', '2024-09-01', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
+(31, 'inserttest', 'nausdg@gmail.com', '1234', '2024-09-01', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png');
 
 
 ALTER TABLE `actividad`
@@ -112,7 +129,7 @@ ALTER TABLE `usuario`
 
 
 ALTER TABLE `juegos`
-  MODIFY `id_juego` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_juego` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 ALTER TABLE `logros`
   MODIFY `id_logro` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
@@ -121,7 +138,7 @@ ALTER TABLE `objetos`
   MODIFY `id_objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 ALTER TABLE `usuario`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 
 ALTER TABLE `actividad`

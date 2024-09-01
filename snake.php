@@ -44,7 +44,17 @@ $sql_leaderboard = "
     LIMIT 10";
 $result_leaderboard = $conn->query($sql_leaderboard);
 
-$sql_achievements = "SELECT nombre, reto, img, Completado FROM logros WHERE id_juego = $game_id";
+$sql_user_achievements = "SELECT logro FROM actividad WHERE id_user = $id_usuario AND id_juego = $game_id";
+$result_user_achievements = $conn->query($sql_user_achievements);
+
+$user_achievements = [];
+if ($result_user_achievements->num_rows > 0) {
+    $row = $result_user_achievements->fetch_assoc();
+    $logro = str_pad($row['logro'], 3, '0', STR_PAD_RIGHT);
+    $user_achievements = str_split($logro); 
+}
+
+$sql_achievements = "SELECT nombre, reto, img FROM logros WHERE id_juego = $game_id";
 $result_achievements = $conn->query($sql_achievements);
 ?>
 <!DOCTYPE html>
@@ -55,7 +65,6 @@ $result_achievements = $conn->query($sql_achievements);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="pregame.css">
     <title>Snake</title>
-    
 </head>
 
 <body>
@@ -93,8 +102,9 @@ $result_achievements = $conn->query($sql_achievements);
     <div class="archivements">
         <?php
         if ($result_achievements->num_rows > 0) {
+            $i = 0;
             while ($achievement = $result_achievements->fetch_assoc()) {
-                $status = $achievement['Completado'] ? 'Completed' : 'Incomplete';
+                $status = (isset($user_achievements[$i]) && $user_achievements[$i] == '1') ? 'Completed' : 'Incomplete';
                 echo "
                 <div class=\"archivement\">
                     <img src=\"{$achievement['img']}\" alt=\"Achievement Image\">
@@ -104,6 +114,7 @@ $result_achievements = $conn->query($sql_achievements);
                         <p>Status: $status</p>
                     </div>
                 </div>";
+                $i++;
             }
         } else {
             echo "<p>No achievements available</p>";
@@ -128,7 +139,6 @@ $result_achievements = $conn->query($sql_achievements);
     const userId = <?php echo $id_usuario; ?>
     </script>
     <script src="snakeRender.js"></script>
-
 
 </body>
 </html>

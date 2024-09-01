@@ -1,240 +1,228 @@
-import pygame, sys
-from pygame.math import Vector2
+import pygame
 import random
+import sys
 import mysql.connector
 from mysql.connector import Error
-import time
 import datetime
+import time
 
-pygame.init()
-height = 480
-width = 720
-
+WIDTH, HEIGHT = 800, 600
+BLOCK_SIZE = 20
+FPS = 20
 user_id = sys.argv[1]
-win = pygame.display.set_mode((width, height))
-score_text = pygame.font.SysFont("Russo One", 15)
-start_text_font = pygame.font.SysFont("Russo One", 30)
 
-class Snake:
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+
+class SnakeGame:
     def __init__(self):
-        self.body = [Vector2(10, 100), Vector2(10, 110), Vector2(10, 120), Vector2(10, 120)]
-        self.direction = Vector2(10, 0)
-        self.add = False
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption('Snake')
+        self.clock = pygame.time.Clock()
+        self.reset_game()
+        self.start_time = time.time()
 
-    def draw(self):
-        for bloque in self.body:
-            pygame.draw.rect(win, (0, 255, 0), (bloque.x, bloque.y, 10, 10))
+    def reset_game(self):
+        self.snake = [(WIDTH // 2, HEIGHT // 2), (WIDTH // 2 + BLOCK_SIZE, HEIGHT // 2), (WIDTH // 2 + BLOCK_SIZE * 2, HEIGHT // 2)]
+        self.direction = 'RIGHT'
+        self.apple = self.generate_apple()
+        self.score = len(self.snake)
 
-    def move(self):
-        if self.add:
-            body_copy = self.body
-            body_copy.insert(0, body_copy[0] + self.direction)
-            self.body = body_copy[:]
-            self.add = False
+    def generate_apple(self):
+        while True:
+            x = random.randint(0, WIDTH - BLOCK_SIZE) // BLOCK_SIZE * BLOCK_SIZE
+            y = random.randint(0, HEIGHT - BLOCK_SIZE) // BLOCK_SIZE * BLOCK_SIZE
+            apple_rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
+            if not any(apple_rect.collidepoint(snake_pos) for snake_pos in self.snake):
+                return (x, y)
+
+    def update_snake(self):
+        head = self.snake[-1]
+        new_head = head
+
+        if self.direction == 'UP':
+            new_head = (head[0], head[1] - BLOCK_SIZE)
+        elif self.direction == 'DOWN':
+            new_head = (head[0], head[1] + BLOCK_SIZE)
+        elif self.direction == 'LEFT':
+            new_head = (head[0] - BLOCK_SIZE, head[1])
+        elif self.direction == 'RIGHT':
+            new_head = (head[0] + BLOCK_SIZE, head[1])
+
+        self.snake.append(new_head)
+
+        if self.snake[-1] == self.apple:
+            self.apple = self.generate_apple()
+            self.score += 1
         else:
-            body_copy = self.body[:-1]
-            body_copy.insert(0, body_copy[0] + self.direction)
-            self.body = body_copy[:]
+            self.snake.pop(0)
 
-    def move_up(self):
-        self.direction = Vector2(0, -10)
+    def draw_elements(self):
+        self.screen.fill(BLACK)
+        
+        for pos in self.snake:
+            pygame.draw.rect(self.screen, GREEN, (pos[0], pos[1], BLOCK_SIZE, BLOCK_SIZE))
+        
+        pygame.draw.rect(self.screen, RED, (self.apple[0], self.apple[1], BLOCK_SIZE, BLOCK_SIZE))
 
-    def move_down(self):
-        self.direction = Vector2(0, 10)
+        font = pygame.font.SysFont(None, 32)
+        score_text = font.render(f"Score: {self.score-3}", True, WHITE)
+        self.screen.blit(score_text, (10, 10))
 
-    def move_left(self):
-        self.direction = Vector2(-10, 0)
-
-    def move_right(self):
-        self.direction = Vector2(10, 0)
-
-    def die(self):
-        if self.body[0].x == width or self.body[0].y == height or self.body[0].x <= -10 or self.body[0].y <= -10:
-            return True
-
-        for i in self.body[1:]:
-            if self.body[0] == i:
-                return True
-
-    def checkwin(self, score):
-        if score == ((height / 10) + (width / 10)):
-            return True
-
-def start_screen():
-    win.fill((0, 0, 0))
-    text = start_text_font.render("Press any letter to start", True, (255, 255, 255))
-    instructions = score_text.render("Move with the arrows", True, (255, 255, 255))
-    win.blit(text, (width // 2 - text.get_width() // 2, height // 2 - text.get_height() // 2))
-    win.blit(instructions, (width // 2 - instructions.get_width() // 2, height // 2 + text.get_height() // 2 + 20))
-    pygame.display.update()
-    waiting = True
-    while waiting:
+    def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                waiting = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and self.direction != 'DOWN':
+                    self.direction = 'UP'
+                elif event.key == pygame.K_DOWN and self.direction != 'UP':
+                    self.direction = 'DOWN'
+                elif event.key == pygame.K_LEFT and self.direction != 'RIGHT':
+                    self.direction = 'LEFT'
+                elif event.key == pygame.K_RIGHT and self.direction != 'LEFT':
+                    self.direction = 'RIGHT'
+                elif event.key == pygame.K_SPACE:
+                    self.paused = not self.paused
 
-def pause():
-    DieFont = pygame.font.SysFont('Calibri', 40)
-    restartFont = pygame.font.SysFont('Calibri', 20)
-    text_die = DieFont.render("Game Over", True, (255, 255, 255))
-    win.blit(text_die, (260, 200))
-    text_die_restart = restartFont.render("Space to restart", True, (255, 255, 255))
-    win.blit(text_die_restart, (280, 240))
-    pygame.display.update()
-    paused = True
-    while paused:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                paused = False
-                running = False
-                pygame.quit()
-                exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    restart()
+    def pause(self):
+        DieFont = pygame.font.SysFont('Calibri', 40)
+        restartFont = pygame.font.SysFont('Calibri', 20)
+
+        text_die = DieFont.render("Game Over", True, (255, 255, 255))
+        self.screen.blit(text_die, (325, 250))
+            
+        text_die_restart = restartFont.render("Space to restart", True, (255, 255, 255))
+        self.screen.blit(text_die_restart, (345, 290))
+
+        pygame.display.update()
+        paused = True
+        while paused:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     paused = False
-    return restart()
+                    pygame.quit()
+                    exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.restart()
+                        paused = False
+                        return self.restart()
 
-def restart():
-    score = 0
-    apple = Apple()
-    snake = Snake()
-    fps = pygame.time.Clock()
-    return score, apple, snake, fps
+    def restart(self):
+        fps = pygame.time.Clock()
+        self.snake = [(WIDTH // 2, HEIGHT // 2), (WIDTH // 2 + BLOCK_SIZE, HEIGHT // 2), (WIDTH // 2 + BLOCK_SIZE * 2, HEIGHT // 2)]
+        self.direction = 'RIGHT'
+        self.apple = self.generate_apple()
+        self.score = len(self.snake)
+        return self.score - 3, fps
 
-class Apple:
-    def __init__(self):
-        self.generate()
+    def update_game_time(self, cursor, connection, user_id):
+        current_time = time.time()
+        elapsed_time = int(current_time - self.start_time)
 
-    def draw(self):
-        pygame.draw.rect(win, (255, 0, 0), (self.pos.x, self.pos.y, 10, 10))
+        query_update_time = """UPDATE actividad SET tiempo = tiempo + %s, ult_ingreso = %s WHERE id_user = %s AND id_juego = 1"""
+        cursor.execute(query_update_time, (elapsed_time, datetime.datetime.now().strftime('%Y-%m-%d'), user_id))
+        connection.commit()
+        print("we're here")
 
-    def generate(self):
-        self.x = random.randrange(0, int(width / 10))
-        self.y = random.randrange(0, int(height / 10))
-        self.pos = Vector2(self.x * 10, self.y * 10)
+    def scoreQuery(self):
+        print(f"Type of user_id: {type(user_id)}, Value: {user_id}")
+        try:
+            config = {
+                "host": "localhost",
+                "database": "desktopapp",
+                "user": "root",
+                "password": ""
+            }
+            connection = mysql.connector.connect(**config)
+            if connection.is_connected():
+                cursor = connection.cursor()
 
-    def check_collision(self, snake):
-        if snake.body[0] == self.pos:
-            self.generate()
-            snake.add = True
-            return True
-        for block in snake.body[1:]:
-            if block == self.pos:
-                self.generate()
+                query_check_user = "SELECT puntaje FROM actividad WHERE id_user = %s AND id_juego = 1"
+                cursor.execute(query_check_user, (user_id,))
+                result = cursor.fetchone()
+                print(f"query: {result}")
 
-def update_game_time(cursor, connection, user_id, start_time):
-    current_time = time.time()
-    elapsed_time = int(current_time - start_time)
+                if result is not None:
+                    db_score = result[0]
+                    if db_score <= self.score:
+                        query_update_max_score = "UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 1"
+                        cursor.execute(query_update_max_score, (self.score, user_id))
+                    connection.commit()
+                    
 
-    query_update_time = """UPDATE actividad SET tiempo = tiempo + %s, ult_ingreso = %s WHERE id_user = %s AND id_juego = 1"""
-    cursor.execute(query_update_time, (elapsed_time, datetime.datetime.now().strftime('%Y-%m-%d'), user_id))
-    connection.commit()
+                    if db_score >= 1:
+                        query_primer_logro = "UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 1"
+                        cursor.execute(query_primer_logro, (user_id,))
+                        connection.commit()
 
-def main():
-    start_screen()
-    score = 0
-    apple = Apple()
-    snake = Snake()
-    fps = pygame.time.Clock()
-    start_time = time.time()
+                    if db_score >= 20:
+                        query_segundo_logro = "UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 1"
+                        cursor.execute(query_segundo_logro, (user_id,))
+                        connection.commit()
 
-    host = 'localhost'
-    database = 'desktopapp'
-    user = 'root'
-    password = ''
+                    if db_score >= 1197:
+                        query_tercer_logro = "UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 1"
+                        cursor.execute(query_tercer_logro, (user_id,))
+                        connection.commit()
 
-    connection = None
-    try:
-        connection = mysql.connector.connect(host=host, database=database, user=user, password=password)
-        if connection.is_connected():
-            cursor = connection.cursor()
+                else:
+                    query_insert_new_user = """INSERT INTO actividad (id_user, id_juego, puntaje, tiempo, ult_ingreso) VALUES (%s, 1, %s, 0, %s)"""
+                    cursor.execute(query_insert_new_user, (user_id, self.score, datetime.datetime.now().strftime('%Y-%m-%d')))
 
-            query_check_user = "SELECT * FROM actividad WHERE id_user = %s AND id_juego = 1"
-            cursor.execute(query_check_user, (user_id,))
-            result = cursor.fetchone()
+                self.update_game_time(cursor, connection, user_id)
 
-            if not result:
-                query_insert_default = """INSERT INTO actividad (id_user, id_juego, puntaje, tiempo, ult_ingreso) VALUES (%s, 1, 0, 0, %s)"""
-                cursor.execute(query_insert_default, (user_id, datetime.datetime.now().strftime('%Y-%m-%d')))
+                query_update_last_login = """UPDATE actividad SET ult_ingreso = %s WHERE id_user = %s AND id_juego = 1"""
+                cursor.execute(query_update_last_login, (datetime.datetime.now().strftime('%Y-%m-%d'), user_id))
                 connection.commit()
 
-            query_update_last_login = """UPDATE actividad SET ult_ingreso = %s WHERE id_user = %s AND id_juego = 1"""
-            cursor.execute(query_update_last_login, (datetime.datetime.now().strftime('%Y-%m-%d'), user_id))
-            connection.commit()
-
-    except mysql.connector.Error as e:
-        print(f"Error: {e}")
-
-    while True:
-        fps.tick(20)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                if connection:
-                    update_game_time(cursor, connection, user_id, start_time)
-                    cursor.close()
-                    connection.close()
-                quit()
-
-            if event.type == pygame.KEYDOWN and snake.direction.y != 10:
-                if event.key == pygame.K_UP:
-                    snake.move_up()
-
-            if event.type == pygame.KEYDOWN and snake.direction.y != -10:
-                if event.key == pygame.K_DOWN:
-                    snake.move_down()
-
-            if event.type == pygame.KEYDOWN and snake.direction.x != -10:
-                if event.key == pygame.K_RIGHT:
-                    snake.move_right()
-
-            if event.type == pygame.KEYDOWN and snake.direction.x != 10:
-                if event.key == pygame.K_LEFT:
-                    snake.move_left()
-
-        win.fill((0, 0, 0))
-        snake.draw()
-        snake.move()
-        apple.draw()
-
-        if snake.die():
-            try:
-                query_select = """SELECT puntaje FROM actividad WHERE id_user = %s AND id_juego = 1"""
-                cursor.execute(query_select, (user_id,))
-                result = cursor.fetchone()
-
-                if result:
-                    current_score = result[0]
-                    if score > current_score:
-                        query_update = """UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 1"""
-                        cursor.execute(query_update, (score, user_id))
-                        connection.commit()
-                else:
-                    query_insert = """
-                        INSERT INTO actividad (id_user, id_juego, puntaje) 
-                        VALUES (%s, 1, %s)
-                    """
-                    cursor.execute(query_insert, (user_id, score))
-                    connection.commit()
-
-            except mysql.connector.Error as e:
-                print(f"Error executing the query: {e}")
-
-            if connection:
-                update_game_time(cursor, connection, user_id, start_time)
                 cursor.close()
                 connection.close()
 
-            pause()
+        except mysql.connector.Error as e:
+            print(f"mysql error: {e}")
 
-        if apple.check_collision(snake):
-            score += 1
 
-        text = score_text.render(f"Score: {score}", True, (255, 255, 255))
-        win.blit(text, (10, 10))
-        pygame.display.update()
+    def play(self):
+        running = True
+        paused = False
+        while running:
+            self.handle_events()
+            if not paused:
+                self.update_snake()
+                
+                if (self.snake[-1][0] < 0 or self.snake[-1][0] >= WIDTH or
+                    self.snake[-1][1] < 0 or self.snake[-1][1] >= HEIGHT or
+                    self.snake[-1] in self.snake[:-1]):
+                    self.scoreQuery()
+                    self.pause()
+                    continue
 
-main()
+            self.draw_elements()
+            pygame.display.flip()
+            self.clock.tick(FPS)
+
+        if self.score == (WIDTH // BLOCK_SIZE * HEIGHT // BLOCK_SIZE):
+            self.game_won_screen()
+
+    def game_won_screen(self):
+        self.screen.fill(WHITE)
+        font = pygame.font.SysFont(None, 64)
+        victory_text = font.render("¡Felicidades! Has ganado", True, BLACK)
+        score_text = font.render(f"Tienes un score de {self.score} puntos", True, BLACK)
+        play_again_text = font.render("Presiona Enter para jugar de nuevo", True, BLACK)
+        
+        self.screen.blit(victory_text, (WIDTH // 2 - 150, HEIGHT // 2 - 100))
+        self.screen.blit(score_text, (WIDTH // 2 - 120, HEIGHT // 2 - 30))
+        self.screen.blit(play_again_text, (WIDTH // 2 - 150, HEIGHT // 2 + 40))
+        
+        pygame.display.flip()
+
+if __name__ == "__main__":
+    pygame.init()
+    game = SnakeGame()
+    game.play()
