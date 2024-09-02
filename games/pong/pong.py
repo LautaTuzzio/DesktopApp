@@ -23,13 +23,18 @@ PADDLE_SPEED = 7
 
 # Pelota
 BALL_RADIUS = 10
-BALL_SPEED_X = 5
-BALL_SPEED_Y = 5
+INITIAL_BALL_SPEED_X = 5
+INITIAL_BALL_SPEED_Y = 5
+BALL_SPEED_INCREASE = 0.7
 
 # Paddles y bola
 left_paddle = pygame.Rect(10, HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
 right_paddle = pygame.Rect(WIDTH - 30, HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
 ball = pygame.Rect(WIDTH // 2 - BALL_RADIUS, HEIGHT // 2 - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2)
+
+# Velocidad actual de la pelota
+ball_speed_x = INITIAL_BALL_SPEED_X
+ball_speed_y = INITIAL_BALL_SPEED_Y
 
 # Puntuaciones
 left_score = 0
@@ -56,17 +61,26 @@ def move_paddles():
 
 # Función para mover la pelota
 def move_ball():
-    global BALL_SPEED_X, BALL_SPEED_Y, left_score, right_score
-    ball.x += BALL_SPEED_X
-    ball.y += BALL_SPEED_Y
+    global ball_speed_x, ball_speed_y, left_score, right_score
+    ball.x += ball_speed_x 
+    ball.y += ball_speed_y
 
     # Colisión con la parte superior o inferior de la pantalla
     if ball.top <= 0 or ball.bottom >= HEIGHT:
-        BALL_SPEED_Y *= -1
+        ball_speed_y *= -1
 
     # Colisión con los paddles
     if ball.colliderect(left_paddle) or ball.colliderect(right_paddle):
-        BALL_SPEED_X *= -1
+        ball_speed_x *= -1
+        # Aumentar la velocidad de la pelota
+        if ball_speed_x > 0:
+            ball_speed_x += BALL_SPEED_INCREASE
+        else:
+            ball_speed_x -= BALL_SPEED_INCREASE
+        if ball_speed_y > 0:
+            ball_speed_y += BALL_SPEED_INCREASE
+        else:
+            ball_speed_y -= BALL_SPEED_INCREASE
 
     # Puntaje y reinicio de la pelota
     if ball.left <= 0:
@@ -78,10 +92,10 @@ def move_ball():
 
 # Función para reiniciar la pelota
 def reset_ball():
-    global BALL_SPEED_X, BALL_SPEED_Y
+    global ball_speed_x, ball_speed_y
     ball.center = (WIDTH // 2, HEIGHT // 2)
-    BALL_SPEED_X *= random.choice((1, -1))
-    BALL_SPEED_Y *= random.choice((1, -1))
+    ball_speed_x = INITIAL_BALL_SPEED_X * random.choice((1, -1))
+    ball_speed_y = INITIAL_BALL_SPEED_Y * random.choice((1, -1))
 
 # Función para verificar si hay un ganador
 def check_winner():
