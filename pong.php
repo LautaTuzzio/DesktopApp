@@ -138,7 +138,7 @@ $result_achievements = $conn->query($sql_achievements);
     <script>
     const userId = <?php echo $id_usuario; ?>
     </script>
-    <script src="snakeRender.js"></script>
+    <script src="pongRender.js"></script>
 
 </body>
 </html>
