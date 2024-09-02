@@ -1,3 +1,4 @@
+
 import pygame
 import random
 import sys
@@ -61,10 +62,8 @@ class SnakeGame:
 
     def draw_elements(self):
         self.screen.fill(BLACK)
-        
         for pos in self.snake:
             pygame.draw.rect(self.screen, GREEN, (pos[0], pos[1], BLOCK_SIZE, BLOCK_SIZE))
-        
         pygame.draw.rect(self.screen, RED, (self.apple[0], self.apple[1], BLOCK_SIZE, BLOCK_SIZE))
 
         font = pygame.font.SysFont(None, 32)
@@ -123,14 +122,15 @@ class SnakeGame:
     def update_game_time(self, cursor, connection, user_id):
         current_time = time.time()
         elapsed_time = int(current_time - self.start_time)
+        hours, remainder = divmod(elapsed_time, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        time_format = f"{hours:02}:{minutes:02}:{seconds:02}"
 
-        query_update_time = """UPDATE actividad SET tiempo = tiempo + %s, ult_ingreso = %s WHERE id_user = %s AND id_juego = 1"""
-        cursor.execute(query_update_time, (elapsed_time, datetime.datetime.now().strftime('%Y-%m-%d'), user_id))
+        query_update_time = """UPDATE actividad SET tiempo = ADDTIME(tiempo, %s), ult_ingreso = %s WHERE id_user = %s AND id_juego = 1"""
+        cursor.execute(query_update_time, (time_format, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user_id))
         connection.commit()
-        print("we're here")
 
     def scoreQuery(self):
-        print(f"Type of user_id: {type(user_id)}, Value: {user_id}")
         try:
             config = {
                 "host": "localhost",
@@ -143,32 +143,26 @@ class SnakeGame:
                 cursor = connection.cursor()
 
                 query_check_user = "SELECT puntaje FROM actividad WHERE id_user = %s AND id_juego = 1"
-                cursor.execute(query_check_user, (user_id,))
+                cursor.execute(query_check_user, (user_id,)) 
                 result = cursor.fetchone()
-                print(f"query: {result}")
 
                 if result is not None:
                     db_score = result[0]
                     if db_score <= self.score:
                         query_update_max_score = "UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 1"
-                        cursor.execute(query_update_max_score, (self.score, user_id))
-                    connection.commit()
-                    
+                        cursor.execute(query_update_max_score, ((self.score-3), user_id))
 
-                    if db_score >= 1:
+                    if db_score > 0:
                         query_primer_logro = "UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 1"
                         cursor.execute(query_primer_logro, (user_id,))
-                        connection.commit()
 
                     if db_score >= 20:
                         query_segundo_logro = "UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 1"
                         cursor.execute(query_segundo_logro, (user_id,))
-                        connection.commit()
 
                     if db_score >= 1197:
                         query_tercer_logro = "UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 1"
                         cursor.execute(query_tercer_logro, (user_id,))
-                        connection.commit()
 
                 else:
                     query_insert_new_user = """INSERT INTO actividad (id_user, id_juego, puntaje, tiempo, ult_ingreso) VALUES (%s, 1, %s, 0, %s)"""
@@ -180,12 +174,8 @@ class SnakeGame:
                 cursor.execute(query_update_last_login, (datetime.datetime.now().strftime('%Y-%m-%d'), user_id))
                 connection.commit()
 
-                cursor.close()
-                connection.close()
-
         except mysql.connector.Error as e:
-            print(f"mysql error: {e}")
-
+            print(f"Error: {e}")
 
     def play(self):
         running = True

@@ -24,6 +24,7 @@ $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $id =  $row['id_user'];
+    $_SESSION['user_id'] = $id;
     $name = $row['name_user'];
     $email = $row['mail'];
     $password = $row['password'];
@@ -543,23 +544,32 @@ $conn->close();
         }
 
         function updateProfilePicture(imageUrl, isBought) {
-        if (isBought) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "update_profile_picture.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
+    if (isBought) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "update_profile_picture.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                console.log("Ready State: " + xhr.readyState);
+                console.log("Status: " + xhr.status);
+                console.log("Response Text: " + xhr.responseText);
+                if (xhr.status === 200) {
                     var placeholders = document.querySelectorAll("#user-pfp");
                     placeholders.forEach(function(placeholder) {
                         placeholder.src = imageUrl;
                     });
+                } else {
+                    console.error("Error: " + xhr.status + " - " + xhr.statusText);
                 }
-            };
-            xhr.send("newProfilePicture=" + encodeURIComponent(imageUrl));
-        } else {
-            alert("This picture is not unlocked yet!");
-        }
+            }
+        };
+
+        xhr.send("newProfilePicture=" + encodeURIComponent(imageUrl));
+    } else {
+        alert("This picture is not unlocked yet!");
     }
+}
     </script>
 </body>
 
