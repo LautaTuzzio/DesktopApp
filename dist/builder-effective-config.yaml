@@ -1,9 +1,0 @@
-directories:
-  output: dist
-  buildResources: build
-appId: com.yourcompany.my-electron-app
-productName: electron-db-testing
-win:
-  icon: build/icon.ico
-files: []
-electronVersion: 31.0.2
