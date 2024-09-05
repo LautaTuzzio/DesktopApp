@@ -21,6 +21,7 @@ clock = pygame.time.Clock()
 user_id = sys.argv[1]
 
 # Paddle
+SET_SPEED = 7 
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
 PADDLE_SPEED = 7
 AI_PADDLE_SPEED = 7  # Initial AI paddle speed
@@ -87,7 +88,7 @@ def move_paddles():
 
 # Función para mover la pelota
 def move_ball():
-    global ball_speed_x, ball_speed_y, left_score, right_score, AI_PADDLE_SPEED
+    global ball_speed_x, ball_speed_y, left_score, right_score, AI_PADDLE_SPEED, PADDLE_SPEED
     ball.x += ball_speed_x 
     ball.y += ball_speed_y
 
@@ -111,6 +112,8 @@ def move_ball():
         # Increase AI paddle speed
         if game_mode == PLAYER_VS_AI:
             AI_PADDLE_SPEED += AI_SPEED_INCREASE
+            PADDLE_SPEED += AI_SPEED_INCREASE
+            
 
     # Puntaje y reinicio de la pelota
     if ball.left <= 0:
@@ -243,7 +246,8 @@ def reset_game():
     global left_score, right_score, game_state, AI_PADDLE_SPEED
     left_score = 0
     right_score = 0
-    AI_PADDLE_SPEED = PADDLE_SPEED  # Reset AI paddle speed
+    AI_PADDLE_SPEED = SET_SPEED  
+    PADDLE_SPEED = SET_SPEED
     reset_ball()
     left_paddle.centery = HEIGHT // 2
     right_paddle.centery = HEIGHT // 2

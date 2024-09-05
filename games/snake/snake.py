@@ -17,7 +17,7 @@ SNAKE_SIZE = 30
 APPLE_SIZE = 30
 user_id = sys.argv[1]
 
-SNAKE_BODY = pygame.transform.scale(pygame.image.load(os.path.join(r"games\snake\images\snakebody.png")), (SNAKE_SIZE, SNAKE_SIZE))
+SNAKE_BODY = pygame.transform.scale(pygame.image.load(os.path.join(r"games\snake\images\snakebody1.jpg")), (SNAKE_SIZE, SNAKE_SIZE))
 APPLE = pygame.transform.scale(pygame.image.load(os.path.join(r"games\snake\images\manzana.png")), (APPLE_SIZE, APPLE_SIZE))
 SNAKE_HEAD = []
 
@@ -28,7 +28,6 @@ EAT_SOUND = pygame.mixer.Sound("games\snake\coin.wav")
 
 WIN = pygame.display.set_mode((ANCHO, ALTO))
 
-
 SCORE_TEXT = pygame.font.SysFont("Russo One", 25)
 
 class Snake:
@@ -36,8 +35,11 @@ class Snake:
         self.body = [Vector2(0, ALTO // 2), Vector2(-SNAKE_SIZE, ALTO // 2), Vector2(-2 * SNAKE_SIZE, ALTO // 2)]
         self.direction = Vector2(SNAKE_SIZE, 0)
         self.grow = False
-        self.score = 0  
-        self.start_time = time.time()  
+        self.score = 0
+        self.start_time = time.time()
+        self.last_update_time = self.start_time
+        self.last_move_time = time.time()
+        self.move_delay = 0.1  # 100 ms delay between automatic moves
 
     def draw(self):
         for bloque in self.body:
@@ -54,7 +56,9 @@ class Snake:
 
     def update_game_time(self, cursor, connection, user_id):
         current_time = time.time()
-        elapsed_time = int(current_time - self.start_time)
+        elapsed_time = int(current_time - self.last_update_time)
+        self.last_update_time = current_time
+
         hours, remainder = divmod(elapsed_time, 3600)
         minutes, seconds = divmod(remainder, 60)
         time_format = f"{hours:02}:{minutes:02}:{seconds:02}"
@@ -64,7 +68,7 @@ class Snake:
         connection.commit()
 
     def scoreQuery(self, score):
-        self.score=score
+        self.score = score
         try:
             config = {
                 "host": "localhost",
@@ -115,9 +119,18 @@ class Snake:
                 cursor.close()
                 connection.close()
 
-
+    def can_move(self):
+        current_time = time.time()
+        if current_time - self.last_move_time >= self.move_delay:
+            self.last_move_time = current_time
+            return True
+        return False
 
     def move(self):
+        if self.can_move():
+            self._perform_move()
+
+    def _perform_move(self):
         if self.grow:
             self.body.insert(0, self.body[0] + self.direction)
             self.grow = False
@@ -126,21 +139,11 @@ class Snake:
             body_copy.insert(0, self.body[0] + self.direction)
             self.body = body_copy
 
-    def move_up(self):
-        if self.direction.y != SNAKE_SIZE:
-            self.direction = Vector2(0, -SNAKE_SIZE)
-
-    def move_down(self):
-        if self.direction.y != -SNAKE_SIZE:
-            self.direction = Vector2(0, SNAKE_SIZE)
-
-    def move_right(self):
-        if self.direction.x != -SNAKE_SIZE:
-            self.direction = Vector2(SNAKE_SIZE, 0)
-
-    def move_left(self):
-        if self.direction.x != SNAKE_SIZE:
-            self.direction = Vector2(-SNAKE_SIZE, 0)
+    def instant_move(self, new_direction):
+        if self.direction != new_direction and self.direction != -new_direction:
+            self.direction = new_direction
+            self._perform_move()
+            self.last_move_time = time.time()  # Reset the move timer
 
     def pause(self):
         DieFont = pygame.font.SysFont('Calibri', 40)
@@ -167,9 +170,9 @@ class Snake:
                         return self.restart()
 
     def winscreen(self):
-        WIN.fill((255, 255, 255))  # Definir el fondo blanco
+        WIN.fill((255, 255, 255))
         font = pygame.font.SysFont(None, 64)
-        victory_text = font.render("¡Congratulations! you win", True, (0, 0, 0))  # Texto en negro
+        victory_text = font.render("¡Congratulations! you win", True, (0, 0, 0))
         score_text = font.render(f"score: 384", True, (0, 0, 0))
         play_again_text = font.render("Press space to play again", True, (0, 0, 0))
         
@@ -190,12 +193,14 @@ class Snake:
                         self.restart()
                         paused = False
                         return 
-                    
 
     def restart(self):
         self.body = [Vector2(0, ALTO // 2), Vector2(-SNAKE_SIZE, ALTO // 2), Vector2(-2 * SNAKE_SIZE, ALTO // 2)]
         self.direction = Vector2(SNAKE_SIZE, 0)
-        self.score = 0  
+        self.score = 0
+        self.start_time = time.time()
+        self.last_update_time = self.start_time
+        self.last_move_time = time.time()
 
         return self.score
 
@@ -232,9 +237,6 @@ class Apple:
 
         return False
 
-
-
-
 def main():
     snake = Snake()
     apple = Apple()
@@ -242,7 +244,7 @@ def main():
     fps = pygame.time.Clock()
 
     while True:
-        fps.tick(15)
+        fps.tick(500)  # Mantenemos un alto FPS para una mejor respuesta
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -250,20 +252,20 @@ def main():
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    snake.move_up()
-                elif event.key == pygame.K_DOWN:
-                    snake.move_down()
-                elif event.key == pygame.K_RIGHT:
-                    snake.move_right()
-                elif event.key == pygame.K_LEFT:
-                    snake.move_left()
+                if event.key == pygame.K_UP and snake.direction.y != SNAKE_SIZE:
+                    snake.instant_move(Vector2(0, -SNAKE_SIZE))
+                elif event.key == pygame.K_DOWN and snake.direction.y != -SNAKE_SIZE:
+                    snake.instant_move(Vector2(0, SNAKE_SIZE))
+                elif event.key == pygame.K_RIGHT and snake.direction.x != -SNAKE_SIZE:
+                    snake.instant_move(Vector2(SNAKE_SIZE, 0))
+                elif event.key == pygame.K_LEFT and snake.direction.x != SNAKE_SIZE:
+                    snake.instant_move(Vector2(-SNAKE_SIZE, 0))
 
         WIN.fill((175, 215, 70))
         snake.draw()
         apple.draw()
 
-        snake.move()
+        snake.move()  # This will now only move the snake if enough time has passed
 
         if apple.check_collision(snake):
             score += 1
@@ -271,8 +273,8 @@ def main():
 
         if score >= 384:
             snake.winscreen()
-            score = 0  # Restablecer la puntuación después de mostrar la pantalla de victoria
-            continue  # Continuar con el próximo ciclo del bucle principal
+            score = 0
+            continue
 
         if snake.die():
             snake.scoreQuery(score)
@@ -285,4 +287,5 @@ def main():
 
         pygame.display.update()
 
-main()
+if __name__ == "__main__":
+    main()
