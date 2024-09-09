@@ -70,7 +70,7 @@ INSERT INTO `logros` (`id_logro`, `nombre`, `reto`, `id_juego`, `recompensa`, `i
 (9, 'Winner', 'Win 20 game against the AI', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
 (10, 'Getting started', 'Reach 1000 points', 3, 6000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
 (11, 'Tetris master', 'Reach 10000 points', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
-(12, 'Tetris god', 'Reach 10000 points', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s');
+(12, 'Tetris god', 'Reach 100000 points', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s');
 
 CREATE TABLE `objetos` (
   `id_objeto` int(11) NOT NULL,
