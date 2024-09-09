@@ -64,7 +64,7 @@ $result_achievements = $conn->query($sql_achievements);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="pregame.css">
-    <title>Snake</title>
+    <title>Pong</title>
 </head>
 
 <body>

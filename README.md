@@ -1,4 +1,6 @@
-TODO:
-- Hay un error el cual hace que se inserten datos +3 en el snake, cosa de maxi
-- Cande arreglar el galaga
-- Lauti matate
+Notas: 
+    No funcionan las consultas del pong
+
+Todo: 
+    Agregar contenido a la tienda
+    Updater de coins al conseguir un logro

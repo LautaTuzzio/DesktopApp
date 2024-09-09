@@ -18,7 +18,7 @@ BLACK = (0, 0, 0)
 # Velocidad de actualización
 FPS = 60
 clock = pygame.time.Clock()
-user_id = 34#sys.argv[1]
+user_id = 33 #sys.argv[1]
 
 # Paddle
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
