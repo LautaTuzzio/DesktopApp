@@ -1,25 +1,6 @@
--- phpMyAdmin SQL Dump
--- version 5.2.0
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: 09-09-2024 a las 19:14:40
--- Versión del servidor: 10.4.24-MariaDB
--- Versión de PHP: 8.1.6
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
---
--- Base de datos: `desktopapp`
---
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `actividad`
---
 
 CREATE TABLE `actividad` (
   `id_user` int(11) NOT NULL,
@@ -30,10 +11,6 @@ CREATE TABLE `actividad` (
   `ult_ingreso` date NOT NULL,
   `puntaje` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Volcado de datos para la tabla `actividad`
---
 
 INSERT INTO `actividad` (`id_user`, `id_juego`, `logro`, `estilos`, `tiempo`, `ult_ingreso`, `puntaje`) VALUES
 (1, 1, 100, 1, '10:15:27', '2024-08-19', 4),
@@ -56,13 +33,11 @@ INSERT INTO `actividad` (`id_user`, `id_juego`, `logro`, `estilos`, `tiempo`, `u
 (29, 1, 11, 0, '00:00:33', '2024-09-01', 23),
 (31, 1, 11, 0, '00:00:00', '2024-09-01', 23),
 (32, 1, 1, 0, '00:00:40', '2024-09-02', 14),
-(34, 3, 111, 0, '00:00:58', '2024-09-09', 100);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `juegos`
---
+(33, 2, 0, 0, '00:00:40', '2024-09-09', 2),
+(34, 3, 111, 0, '00:00:58', '2024-09-09', 100),
+(35, 2, 11, 0, '00:00:00', '2024-09-09', 5),
+(36, 2, 0, 0, '00:00:39', '2024-09-09', 2),
+(37, 2, 1, 0, '00:00:15', '2024-09-09', 1);
 
 CREATE TABLE `juegos` (
   `id_juego` int(11) NOT NULL,
@@ -71,21 +46,11 @@ CREATE TABLE `juegos` (
   `url` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Volcado de datos para la tabla `juegos`
---
-
 INSERT INTO `juegos` (`id_juego`, `nombre`, `img_juego`, `url`) VALUES
 (0, 'None', '', NULL),
 (1, 'Snake', 'https://i0.wp.com/imgs.hipertextual.com/wp-content/uploads/2019/02/hipertextual-snake-juego-mas-popular-nokia-2019151135.jpg?fit=1500%2C1000&quality=50&strip=all&ssl=1', 'snake.php'),
 (2, 'Pong', 'https://media.vanityfair.com/photos/54cbffcefde9250a6c40fc92/master/w_2560%2Cc_limit/image.jpg', 'pong.php'),
 (3, 'Tetris', 'https://cdn2.spatial.io/assets/v1/static/external_games/good-old-tetris.jpeg', 'tetris.php');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `logros`
---
 
 CREATE TABLE `logros` (
   `id_logro` int(11) NOT NULL,
@@ -96,26 +61,16 @@ CREATE TABLE `logros` (
   `img` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Volcado de datos para la tabla `logros`
---
-
 INSERT INTO `logros` (`id_logro`, `nombre`, `reto`, `id_juego`, `recompensa`, `img`) VALUES
 (4, 'We\'re just starting', 'Eat your first apple', 1, 1, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
 (5, 'Getting better', 'Eat 20 apples', 1, 10, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
 (6, 'Winner!', 'Eat all of the apples', 1, 100, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
-(7, 'Just starting', 'Enter the game', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
-(8, 'Point!', 'Score a point', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
-(9, 'Winner', 'Win a game', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
+(7, 'Just starting', 'Win 1 game against the AI', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
+(8, 'Point!', 'Win 5 game against the AI', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
+(9, 'Winner', 'Win 20 game against the AI', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
 (10, 'Getting started', 'Reach 1000 points', 3, 6000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
 (11, 'Tetris master', 'Reach 10000 points', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
 (12, 'Tetris god', 'Reach 10000 points', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `objetos`
---
 
 CREATE TABLE `objetos` (
   `id_objeto` int(11) NOT NULL,
@@ -127,22 +82,15 @@ CREATE TABLE `objetos` (
   `comprado` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Volcado de datos para la tabla `objetos`
---
-
 INSERT INTO `objetos` (`id_objeto`, `url_img`, `nombre`, `precio`, `id_juego`, `userID`, `comprado`) VALUES
 (1, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 29, 1),
 (2, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 31, 1),
 (3, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 32, 0),
 (4, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 33, 0),
-(5, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 34, 0);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `usuario`
---
+(5, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 34, 0),
+(6, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 35, 0),
+(7, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 36, 0),
+(8, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 37, 0);
 
 CREATE TABLE `usuario` (
   `id_user` int(11) NOT NULL,
@@ -153,10 +101,6 @@ CREATE TABLE `usuario` (
   `monedas` int(11) DEFAULT NULL,
   `current_profile_picture` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Volcado de datos para la tabla `usuario`
---
 
 INSERT INTO `usuario` (`id_user`, `name_user`, `mail`, `password`, `registration_date`, `monedas`, `current_profile_picture`) VALUES
 (1, 'josega', '1234@gmail.com', '123', '2024-08-12', 0, ''),
@@ -185,94 +129,52 @@ INSERT INTO `usuario` (`id_user`, `name_user`, `mail`, `password`, `registration
 (31, 'inserttest', 'nausdg@gmail.com', '1234', '2024-09-01', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
 (32, 'nufdgnudsg', 'nufdgiusg@gmail.com', '1234', '2024-09-02', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
 (33, 'asfdhu', 'ahufdhu@gmail.com', 'huadfhu', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
-(34, 'tetrtest', 'tetr@gmail.com', '123', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png');
+(34, 'tetrtest', 'tetr@gmail.com', '123', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
+(35, 'pato', 'pato22@gmail.com', 'cuack', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
+(36, 'dino', 'dino23@gmail.com', 'rawr', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
+(37, 'gato', 'gato@gmail.com', 'miau', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png');
 
---
--- Índices para tablas volcadas
---
 
---
--- Indices de la tabla `actividad`
---
 ALTER TABLE `actividad`
   ADD PRIMARY KEY (`id_user`,`id_juego`),
   ADD KEY `id_user` (`id_user`),
   ADD KEY `id_juego_2` (`id_juego`);
 
---
--- Indices de la tabla `juegos`
---
 ALTER TABLE `juegos`
   ADD PRIMARY KEY (`id_juego`);
 
---
--- Indices de la tabla `logros`
---
 ALTER TABLE `logros`
   ADD PRIMARY KEY (`id_logro`),
   ADD KEY `id_juego` (`id_juego`);
 
---
--- Indices de la tabla `objetos`
---
 ALTER TABLE `objetos`
   ADD PRIMARY KEY (`id_objeto`),
   ADD KEY `id_juego` (`id_juego`);
 
---
--- Indices de la tabla `usuario`
---
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`id_user`);
 
---
--- AUTO_INCREMENT de las tablas volcadas
---
 
---
--- AUTO_INCREMENT de la tabla `juegos`
---
 ALTER TABLE `juegos`
   MODIFY `id_juego` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
---
--- AUTO_INCREMENT de la tabla `logros`
---
 ALTER TABLE `logros`
   MODIFY `id_logro` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
---
--- AUTO_INCREMENT de la tabla `objetos`
---
 ALTER TABLE `objetos`
-  MODIFY `id_objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
---
--- AUTO_INCREMENT de la tabla `usuario`
---
 ALTER TABLE `usuario`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
---
--- Restricciones para tablas volcadas
---
 
---
--- Filtros para la tabla `actividad`
---
 ALTER TABLE `actividad`
   ADD CONSTRAINT `actividad_ibfk_1` FOREIGN KEY (`id_juego`) REFERENCES `juegos` (`id_juego`),
   ADD CONSTRAINT `actividad_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `usuario` (`id_user`);
 
---
--- Filtros para la tabla `logros`
---
 ALTER TABLE `logros`
   ADD CONSTRAINT `logros_ibfk_1` FOREIGN KEY (`id_juego`) REFERENCES `juegos` (`id_juego`);
 
---
--- Filtros para la tabla `objetos`
---
 ALTER TABLE `objetos`
   ADD CONSTRAINT `objetos_ibfk_1` FOREIGN KEY (`id_juego`) REFERENCES `juegos` (`id_juego`);
 COMMIT;

@@ -18,7 +18,7 @@ BLACK = (0, 0, 0)
 # Velocidad de actualización
 FPS = 60
 clock = pygame.time.Clock()
-user_id = 33 #sys.argv[1]
+user_id = sys.argv[1]
 
 # Paddle
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
@@ -78,6 +78,12 @@ def move_paddles():
             right_paddle.y -= PADDLE_SPEED
         if keys[pygame.K_DOWN] and right_paddle.bottom < HEIGHT:
             right_paddle.y += PADDLE_SPEED
+    else:
+        # AI movement
+        if right_paddle.centery < ball.centery and right_paddle.bottom < HEIGHT:
+            right_paddle.y += AI_PADDLE_SPEED
+        elif right_paddle.centery > ball.centery and right_paddle.top > 0:
+            right_paddle.y -= AI_PADDLE_SPEED
 
 
 # Función para mover la pelota
@@ -179,17 +185,14 @@ def db_config(winner):
 
             if result is not None:
                 current_victories = result[0]
-                print(current_victories)
                 new_victories = current_victories + 1
+                print(new_victories)
                 
                 query_update_victories = "UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 2"
                 cursor.execute(query_update_victories, (new_victories, user_id))
 
                 # Actualizar logros basados en el número de victorias
-                if new_victories == 1:
-                    query_primer_logro = "UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 2"
-                    cursor.execute(query_primer_logro, (user_id,))
-                elif new_victories == 5:
+                if new_victories == 5:
                     query_segundo_logro = "UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 2"
                     cursor.execute(query_segundo_logro, (user_id,))
                 elif new_victories == 20:
@@ -200,6 +203,8 @@ def db_config(winner):
                 # Si es la primera vez que el usuario juega, insertamos un nuevo registro
                 query_insert_new_user = """INSERT INTO actividad (id_user, id_juego, puntaje, ult_ingreso) VALUES (%s, 2, 1, %s)"""
                 cursor.execute(query_insert_new_user, (user_id, datetime.datetime.now().strftime('%Y-%m-%d')))
+                query_primer_logro = "UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 2"
+                cursor.execute(query_primer_logro, (user_id,))
 
             # Actualizar el tiempo de juego y el último ingreso
             query_update_game_time = """UPDATE actividad SET tiempo = tiempo + %s WHERE id_user = %s AND id_juego = 2"""
