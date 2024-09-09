@@ -277,13 +277,13 @@ class TetrisGame:
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_LEFT:
+                        if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                             self.move(-1, 0)
-                        elif event.key == pygame.K_RIGHT:
+                        elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                             self.move(1, 0)
-                        elif event.key == pygame.K_DOWN:
+                        elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
                             self.move(0, 1)
-                        elif event.key == pygame.K_UP:
+                        elif event.key == pygame.K_w or event.key == pygame.K_UP:
                             self.rotate_piece()
 
                 if fall_time / 1000 > fall_speed:
@@ -345,13 +345,13 @@ class TetrisGame:
 
 
                 achievement_bitmask = 0
-                if self.score >= 1:
+                if self.score >= 1000:
                     achievement_bitmask += 1 
 
-                if self.score >= 10:
+                if self.score >= 10000:
                     achievement_bitmask += 10  
 
-                if self.score >= 100:
+                if self.score >= 100000:
                     achievement_bitmask += 100 
                 print(achievement_bitmask)
 
