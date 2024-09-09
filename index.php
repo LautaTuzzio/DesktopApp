@@ -233,7 +233,7 @@ $conn->close();
         </div>
     </div>
 
-    <div class="profile-personal" onclick="openPopup()">
+    <div class="profile-personal">
         <h1>Account Info</h1>
         <div class="detail-holder">
             <label for="email">Email</label>
