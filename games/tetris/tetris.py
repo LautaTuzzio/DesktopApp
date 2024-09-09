@@ -260,16 +260,18 @@ class TetrisGame:
         new_grid = [[BLACK for _ in range(GRID_WIDTH)] for _ in range(lines_cleared)] + new_grid
         self.grid = new_grid
         self.score += lines_cleared ** 2 * 100
-
     def run(self):
         while True:  
             self.reset_game() 
             fall_time = 0
             fall_speed = 0.5
             self.game_over = False
+            down_press_time = 0
+            down_delay = 100  
 
             while not self.game_over:
                 fall_time += self.clock.get_rawtime()
+                current_time = pygame.time.get_ticks()
                 self.clock.tick()
 
                 for event in pygame.event.get():
@@ -281,10 +283,16 @@ class TetrisGame:
                             self.move(-1, 0)
                         elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                             self.move(1, 0)
-                        elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
-                            self.move(0, 1)
                         elif event.key == pygame.K_w or event.key == pygame.K_UP:
                             self.rotate_piece()
+
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+                    if current_time - down_press_time > down_delay:
+                        self.move(0, 1)
+                        down_press_time = current_time
+                else:
+                    down_press_time = current_time - down_delay 
 
                 if fall_time / 1000 > fall_speed:
                     if not self.move(0, 1):
@@ -301,7 +309,7 @@ class TetrisGame:
 
             if not self.show_game_over_message():
                 break
-    
+
     def execute_game_over_queries(self):
         if self.db_connection:
             try:
