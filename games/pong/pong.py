@@ -1,293 +1,326 @@
-import pygame,sys
+import pygame
+import sys
 import random
 import mysql.connector
 import datetime
 
-# Inicializar Pygame
-pygame.init()
+class Paddle:
+    WIDTH, HEIGHT = 20, 100
+    SPEED = 7
 
-# Dimensiones de la pantalla
-WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Pong')
+    def __init__(self, x, y):
+        self.rect = pygame.Rect(x, y, self.WIDTH, self.HEIGHT)
 
-# Colores
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+    def move(self, up=False):
+        if up and self.rect.top > 0:
+            self.rect.y -= self.SPEED
+        elif not up and self.rect.bottom < Game.HEIGHT:
+            self.rect.y += self.SPEED
 
-# Velocidad de actualización
-FPS = 60
-clock = pygame.time.Clock()
-user_id = sys.argv[1]
+    def draw(self, screen):
+        pygame.draw.rect(screen, Game.WHITE, self.rect)
 
-# Paddle
-PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
-PADDLE_SPEED = 7
-AI_PADDLE_SPEED = 7  # Initial AI paddle speed
+class Ball:
+    RADIUS = 10
+    INITIAL_SPEED_X = 5
+    INITIAL_SPEED_Y = 5
+    SPEED_INCREASE = 0.7
 
-# Pelota
-BALL_RADIUS = 10
-INITIAL_BALL_SPEED_X = 5
-INITIAL_BALL_SPEED_Y = 5
-BALL_SPEED_INCREASE = 0.7
-AI_SPEED_INCREASE = 0.1  # Amount to increase AI speed
+    def __init__(self):
+        self.rect = pygame.Rect(Game.WIDTH // 2 - self.RADIUS, Game.HEIGHT // 2 - self.RADIUS, self.RADIUS * 2, self.RADIUS * 2)
+        self.speed_x = self.INITIAL_SPEED_X * random.choice((1, -1))
+        self.speed_y = self.INITIAL_SPEED_Y * random.choice((1, -1))
 
-# Paddles y bola
-left_paddle = pygame.Rect(10, HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
-right_paddle = pygame.Rect(WIDTH - 30, HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
-ball = pygame.Rect(WIDTH // 2 - BALL_RADIUS, HEIGHT // 2 - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2)
+    def move(self):
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
 
-# Velocidad actual de la pelota
-ball_speed_x = INITIAL_BALL_SPEED_X
-ball_speed_y = INITIAL_BALL_SPEED_Y
+    def bounce(self, axis):
+        if axis == 'x':
+            self.speed_x *= -1
+        elif axis == 'y':
+            self.speed_y *= -1
 
-# Puntuaciones
-left_score = 0
-right_score = 0
-
-# Condiciones de victoria
-WINNING_SCORE = 7
-WINNING_DIFFERENCE = 2
-
-# Fuentes
-font = pygame.font.Font(None, 74)
-menu_font = pygame.font.Font(None, 36)
-
-# Estados del juego
-MENU = 0
-PLAYING = 1
-GAME_OVER = 2
-game_state = MENU
-
-# Modo de juego
-PLAYER_VS_PLAYER = 0
-PLAYER_VS_AI = 1
-game_mode = PLAYER_VS_PLAYER
-
-# Función para mover los paddles
-def move_paddles():
-    global AI_PADDLE_SPEED
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w] and left_paddle.top > 0:
-        left_paddle.y -= PADDLE_SPEED
-    if keys[pygame.K_s] and left_paddle.bottom < HEIGHT:
-        left_paddle.y += PADDLE_SPEED
-    
-    if game_mode == PLAYER_VS_PLAYER:
-        if keys[pygame.K_UP] and right_paddle.top > 0:
-            right_paddle.y -= PADDLE_SPEED
-        if keys[pygame.K_DOWN] and right_paddle.bottom < HEIGHT:
-            right_paddle.y += PADDLE_SPEED
-    else:
-        # AI movement
-        if right_paddle.centery < ball.centery and right_paddle.bottom < HEIGHT:
-            right_paddle.y += AI_PADDLE_SPEED
-        elif right_paddle.centery > ball.centery and right_paddle.top > 0:
-            right_paddle.y -= AI_PADDLE_SPEED
-
-
-# Función para mover la pelota
-def move_ball():
-    global ball_speed_x, ball_speed_y, left_score, right_score, AI_PADDLE_SPEED
-    ball.x += ball_speed_x 
-    ball.y += ball_speed_y
-
-    # Colisión con la parte superior o inferior de la pantalla
-    if ball.top <= 0 or ball.bottom >= HEIGHT:
-        ball_speed_y *= -1
-
-    # Colisión con los paddles
-    if ball.colliderect(left_paddle) or ball.colliderect(right_paddle):
-        ball_speed_x *= -1
-        # Aumentar la velocidad de la pelota
-        if ball_speed_x > 0:
-            ball_speed_x += BALL_SPEED_INCREASE
+        if self.speed_x > 0:
+            self.speed_x += self.SPEED_INCREASE
         else:
-            ball_speed_x -= BALL_SPEED_INCREASE
-        if ball_speed_y > 0:
-            ball_speed_y += BALL_SPEED_INCREASE
+            self.speed_x -= self.SPEED_INCREASE
+        if self.speed_y > 0:
+            self.speed_y += self.SPEED_INCREASE
         else:
-            ball_speed_y -= BALL_SPEED_INCREASE
+            self.speed_y -= self.SPEED_INCREASE
+
+    def reset(self):
+        self.rect.center = (Game.WIDTH // 2, Game.HEIGHT // 2)
+        self.speed_x = self.INITIAL_SPEED_X * random.choice((1, -1))
+        self.speed_y = self.INITIAL_SPEED_Y * random.choice((1, -1))
+
+    def draw(self, screen):
+        pygame.draw.ellipse(screen, Game.WHITE, self.rect)
+
+class Game:
+    WIDTH, HEIGHT = 800, 600
+    WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
+    FPS = 60
+    WINNING_SCORE = 7
+    WINNING_DIFFERENCE = 2
+
+    def __init__(self, user_id):
+        pygame.init()
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        pygame.display.set_caption('Pong')
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 74)
+        self.menu_font = pygame.font.Font(None, 36)
+        self.small_font = pygame.font.Font(None, 24)
         
-        # Increase AI paddle speed
-        if game_mode == PLAYER_VS_AI:
-            AI_PADDLE_SPEED += AI_SPEED_INCREASE
+        self.left_paddle = Paddle(10, self.HEIGHT // 2 - Paddle.HEIGHT // 2)
+        self.right_paddle = Paddle(self.WIDTH - 30, self.HEIGHT // 2 - Paddle.HEIGHT // 2)
+        self.ball = Ball()
+        
+        self.left_score = 0
+        self.right_score = 0
+        self.game_state = 'MENU'
+        self.game_mode = 'PLAYER_VS_PLAYER'
+        self.ai_paddle_speed = Paddle.SPEED
+        self.user_id = user_id
+        self.game_start_time = None
 
-    # Puntaje y reinicio de la pelota
-    if ball.left <= 0:
-        right_score += 1
-        reset_ball()
-    if ball.right >= WIDTH:
-        left_score += 1
-        reset_ball()
-
-# Función para reiniciar la pelota
-def reset_ball():
-    global ball_speed_x, ball_speed_y
-    ball.center = (WIDTH // 2, HEIGHT // 2)
-    ball_speed_x = INITIAL_BALL_SPEED_X * random.choice((1, -1))
-    ball_speed_y = INITIAL_BALL_SPEED_Y * random.choice((1, -1))
-
-# Función para verificar si hay un ganador
-def check_winner():
-    if (left_score >= WINNING_SCORE or right_score >= WINNING_SCORE) and abs(left_score - right_score) >= WINNING_DIFFERENCE:
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.KEYDOWN:
+                if self.game_state == 'MENU':
+                    if event.key == pygame.K_1:
+                        self.game_mode = 'PLAYER_VS_PLAYER'
+                        self.game_state = 'START_SCREEN'
+                    elif event.key == pygame.K_2:
+                        self.game_mode = 'PLAYER_VS_AI'
+                        self.game_state = 'START_SCREEN'
+                elif self.game_state == 'START_SCREEN':
+                    if event.key == pygame.K_RETURN:
+                        self.reset_game()
+                elif self.game_state == 'GAME_OVER':
+                    if event.key == pygame.K_SPACE:
+                        self.game_state = 'MENU'
         return True
-    return False
 
-# Función para dibujar en pantalla
-def draw_game():
-    screen.fill(BLACK)
-    pygame.draw.rect(screen, WHITE, left_paddle)
-    pygame.draw.rect(screen, WHITE, right_paddle)
-    pygame.draw.ellipse(screen, WHITE, ball)
-    pygame.draw.aaline(screen, WHITE, (WIDTH // 2, 0), (WIDTH // 2, HEIGHT))
 
-    left_text = font.render(str(left_score), True, WHITE)
-    screen.blit(left_text, (WIDTH // 4, 20))
+    def move_paddles(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            self.left_paddle.move(up=True)
+        if keys[pygame.K_s]:
+            self.left_paddle.move(up=False)
+        
+        if self.game_mode == 'PLAYER_VS_PLAYER':
+            if keys[pygame.K_UP]:
+                self.right_paddle.move(up=True)
+            if keys[pygame.K_DOWN]:
+                self.right_paddle.move(up=False)
+        else:
+            # AI movement
+            if self.right_paddle.rect.centery < self.ball.rect.centery and self.right_paddle.rect.bottom < self.HEIGHT:
+                self.right_paddle.rect.y += self.ai_paddle_speed
+            elif self.right_paddle.rect.centery > self.ball.rect.centery and self.right_paddle.rect.top > 0:
+                self.right_paddle.rect.y -= self.ai_paddle_speed
 
-    right_text = font.render(str(right_score), True, WHITE)
-    screen.blit(right_text, (WIDTH * 3 // 4, 20))
+    def move_ball(self):
+        self.ball.move()
 
-    pygame.display.flip()
+        # Collision with top or bottom
+        if self.ball.rect.top <= 0 or self.ball.rect.bottom >= self.HEIGHT:
+            self.ball.bounce('y')
 
-# Función para dibujar el menú
-def draw_menu():
-    screen.fill(BLACK)
-    title = font.render("PONG", True, WHITE)
-    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 100))
+        # Collision with paddles
+        if self.ball.rect.colliderect(self.left_paddle.rect) or self.ball.rect.colliderect(self.right_paddle.rect):
+            self.ball.bounce('x')
+            if self.game_mode == 'PLAYER_VS_AI':
+                self.ai_paddle_speed += 0.1
 
-    pvp = menu_font.render("1. Player vs Player", True, WHITE)
-    screen.blit(pvp, (WIDTH // 2 - pvp.get_width() // 2, 300))
+        # Scoring
+        if self.ball.rect.left <= 0:
+            self.right_score += 1
+            self.ball.reset()
+        if self.ball.rect.right >= self.WIDTH:
+            self.left_score += 1
+            self.ball.reset()
 
-    pva = menu_font.render("2. Player vs AI", True, WHITE)
-    screen.blit(pva, (WIDTH // 2 - pva.get_width() // 2, 350))
+    def check_winner(self):
+        if (self.left_score >= self.WINNING_SCORE or self.right_score >= self.WINNING_SCORE) and \
+           abs(self.left_score - self.right_score) >= self.WINNING_DIFFERENCE:
+            return True
+        return False
 
-    pygame.display.flip()
+    def draw_game(self):
+        self.screen.fill(self.BLACK)
+        self.left_paddle.draw(self.screen)
+        self.right_paddle.draw(self.screen)
+        self.ball.draw(self.screen)
+        pygame.draw.aaline(self.screen, self.WHITE, (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT))
 
-def db_config(winner):
-    if game_mode != PLAYER_VS_AI or winner != "Left Player":
-        return  # Solo actualizamos la base de datos si el jugador gana contra la IA
+        left_text = self.font.render(str(self.left_score), True, self.WHITE)
+        self.screen.blit(left_text, (self.WIDTH // 4, 20))
 
-    try:
-        config = {
-            "host": "localhost",
-            "database": "desktopapp",
-            "user": "root",
-            "password": ""
-        }
-        connection = mysql.connector.connect(**config)
-        if connection.is_connected():
-            cursor = connection.cursor()
+        right_text = self.font.render(str(self.right_score), True, self.WHITE)
+        self.screen.blit(right_text, (self.WIDTH * 3 // 4, 20))
 
-            query_check_user = "SELECT puntaje FROM actividad WHERE id_user = %s AND id_juego = 2"
-            cursor.execute(query_check_user, (user_id,))
-            result = cursor.fetchone()
+        pygame.display.flip()
 
-            if result is not None:
-                current_victories = result[0]
-                new_victories = current_victories + 1
-                print(new_victories)
-                
-                query_update_victories = "UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 2"
-                cursor.execute(query_update_victories, (new_victories, user_id))
+    def draw_menu(self):
+        self.screen.fill(self.BLACK)
+        title = self.font.render("PONG", True, self.WHITE)
+        self.screen.blit(title, (self.WIDTH // 2 - title.get_width() // 2, 100))
 
-                # Actualizar logros basados en el número de victorias
-                if new_victories == 5:
-                    query_segundo_logro = "UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 2"
-                    cursor.execute(query_segundo_logro, (user_id,))
-                elif new_victories == 20:
-                    query_tercer_logro = "UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 2"
-                    cursor.execute(query_tercer_logro, (user_id,))
+        pvp = self.menu_font.render("1. Player vs Player", True, self.WHITE)
+        self.screen.blit(pvp, (self.WIDTH // 2 - pvp.get_width() // 2, 300))
 
-            else:
-                # Si es la primera vez que el usuario juega, insertamos un nuevo registro
-                query_insert_new_user = """INSERT INTO actividad (id_user, id_juego, puntaje, ult_ingreso) VALUES (%s, 2, 1, %s)"""
-                cursor.execute(query_insert_new_user, (user_id, datetime.datetime.now().strftime('%Y-%m-%d')))
-                query_primer_logro = "UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 2"
-                cursor.execute(query_primer_logro, (user_id,))
+        pva = self.menu_font.render("2. Player vs AI", True, self.WHITE)
+        self.screen.blit(pva, (self.WIDTH // 2 - pva.get_width() // 2, 350))
 
-            # Actualizar el tiempo de juego y el último ingreso
-            query_update_game_time = """UPDATE actividad SET tiempo = tiempo + %s WHERE id_user = %s AND id_juego = 2"""
-            cursor.execute(query_update_game_time, (game_duration, user_id))
+        pygame.display.flip()
 
-            query_update_last_login = """UPDATE actividad SET ult_ingreso = %s WHERE id_user = %s AND id_juego = 2"""
-            cursor.execute(query_update_last_login, (datetime.datetime.now().strftime('%Y-%m-%d'), user_id))
+    def draw_game_over(self):
+        self.screen.fill(self.BLACK)
+        winner_text = "Left Player Wins!" if self.left_score > self.right_score else "Right Player Wins!"
+        winner_surface = self.font.render(winner_text, True, self.WHITE)
+        self.screen.blit(winner_surface, (self.WIDTH // 2 - winner_surface.get_width() // 2, self.HEIGHT // 2 - winner_surface.get_height() // 2))
+        play_again = self.menu_font.render("Press SPACE to play again", True, self.WHITE)
+        self.screen.blit(play_again, (self.WIDTH // 2 - play_again.get_width() // 2, self.HEIGHT // 2 + 100))
 
-            connection.commit()
-            print(f"Database updated successfully. Player won against AI. Total victories: {new_victories}")
+        pygame.display.flip()
 
-    except mysql.connector.Error as e:
-        print(f"Error de base de datos: {e}")
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
+    def reset_game(self):
+        self.left_score = 0
+        self.right_score = 0
+        self.ai_paddle_speed = Paddle.SPEED
+        self.ball.reset()
+        self.left_paddle.rect.centery = self.HEIGHT // 2
+        self.right_paddle.rect.centery = self.HEIGHT // 2
+        self.game_state = 'PLAYING'
+        self.game_start_time = pygame.time.get_ticks()
 
-# Función para dibujar la pantalla de fin del juego
-def draw_game_over():
-    screen.fill(BLACK)
-    if left_score > right_score:
-        winner_text = "Left Player Wins!"
-    else:
-        winner_text = "Right Player Wins!"
-    winner_surface = font.render(winner_text, True, WHITE)
-    screen.blit(winner_surface, (WIDTH // 2 - winner_surface.get_width() // 2, HEIGHT // 2 - winner_surface.get_height() // 2))
-    play_again = menu_font.render("Press SPACE to play again", True, WHITE)
-    screen.blit(play_again, (WIDTH // 2 - play_again.get_width() // 2, HEIGHT // 2 + 100))
+    def db_config(self, winner):
+        if self.game_mode != 'PLAYER_VS_AI' or winner != "Left Player":
+            return
 
-    pygame.display.flip()
+        try:
+            config = {
+                "host": "localhost",
+                "database": "desktopapp",
+                "user": "root",
+                "password": ""
+            }
+            connection = mysql.connector.connect(**config)
+            if connection.is_connected():
+                cursor = connection.cursor()
 
-# Función para reiniciar el juego
-def reset_game():
-    global left_score, right_score, game_state, AI_PADDLE_SPEED
-    left_score = 0
-    right_score = 0
-    AI_PADDLE_SPEED = PADDLE_SPEED  # Reset AI paddle speed
-    reset_ball()
-    left_paddle.centery = HEIGHT // 2
-    right_paddle.centery = HEIGHT // 2
-    game_state = PLAYING
+                query_check_user = "SELECT puntaje FROM actividad WHERE id_user = %s AND id_juego = 2"
+                cursor.execute(query_check_user, (self.user_id,))
+                result = cursor.fetchone()
 
-# Agregar variable para el tiempo de juego
-game_start_time = None
+                if result is not None:
+                    current_victories = result[0]
+                    new_victories = current_victories + 1
+                    print(new_victories)
+                    
+                    query_update_victories = "UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 2"
+                    cursor.execute(query_update_victories, (new_victories, self.user_id))
 
-# Modificar el bucle principal para manejar el tiempo de juego
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if game_state == MENU:
-                if event.key == pygame.K_1:
-                    game_mode = PLAYER_VS_PLAYER
-                    reset_game()
-                    game_start_time = pygame.time.get_ticks()  # Iniciar el tiempo de juego
-                elif event.key == pygame.K_2:
-                    game_mode = PLAYER_VS_AI
-                    reset_game()
-                    game_start_time = pygame.time.get_ticks()  # Iniciar el tiempo de juego
-            elif game_state == GAME_OVER:
-                if event.key == pygame.K_SPACE:
-                    game_state = MENU
+                    if new_victories == 5:
+                        query_segundo_logro = "UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 2"
+                        cursor.execute(query_segundo_logro, (self.user_id,))
+                    elif new_victories == 20:
+                        query_tercer_logro = "UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 2"
+                        cursor.execute(query_tercer_logro, (self.user_id,))
 
-    if game_state == MENU:
-        draw_menu()
-    elif game_state == PLAYING:
-        move_paddles()
-        move_ball()
+                else:
+                    query_insert_new_user = """INSERT INTO actividad (id_user, id_juego, puntaje, ult_ingreso) VALUES (%s, 2, 1, %s)"""
+                    cursor.execute(query_insert_new_user, (self.user_id, datetime.datetime.now().strftime('%Y-%m-%d')))
+                    query_primer_logro = "UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 2"
+                    cursor.execute(query_primer_logro, (self.user_id,))
 
-        if check_winner():
-            game_state = GAME_OVER
-            game_end_time = pygame.time.get_ticks()
-            game_duration = (game_end_time - game_start_time) // 1000  # Duración en segundos
-            if game_mode == PLAYER_VS_AI and left_score > right_score:
-                db_config("Left Player")
+                game_duration = (pygame.time.get_ticks() - self.game_start_time) // 1000
+                query_update_game_time = """UPDATE actividad SET tiempo = tiempo + %s WHERE id_user = %s AND id_juego = 2"""
+                cursor.execute(query_update_game_time, (game_duration, self.user_id))
 
-        draw_game()
-    elif game_state == GAME_OVER:
-        draw_game_over()
-    
-    clock.tick(FPS)
+                query_update_last_login = """UPDATE actividad SET ult_ingreso = %s WHERE id_user = %s AND id_juego = 2"""
+                cursor.execute(query_update_last_login, (datetime.datetime.now().strftime('%Y-%m-%d'), self.user_id))
 
-pygame.quit()
+                connection.commit()
+                print(f"Database updated successfully. Player won against AI. Total victories: {new_victories}")
+
+        except mysql.connector.Error as e:
+            print(f"Error de base de datos: {e}")
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+
+    def draw_start_screen(self):
+        self.screen.fill(self.BLACK)
+        title = self.font.render("PONG", True, self.WHITE)
+        self.screen.blit(title, (self.WIDTH // 2 - title.get_width() // 2, 100))
+
+        if self.game_mode == 'PLAYER_VS_PLAYER':
+            controls = [
+                "Player 1 Controls:",
+                "W - Move Up",
+                "S - Move Down",
+                "",
+                "Player 2 Controls:",
+                "Up Arrow - Move Up",
+                "Down Arrow - Move Down"
+            ]
+        else:
+            controls = [
+                "Player Controls:",
+                "W - Move Up",
+                "S - Move Down",
+                "",
+                "AI will control the right paddle"
+            ]
+
+        y_offset = 250
+        for line in controls:
+            control_text = self.small_font.render(line, True, self.WHITE)
+            self.screen.blit(control_text, (self.WIDTH // 2 - control_text.get_width() // 2, y_offset))
+            y_offset += 30
+
+        start_text = self.menu_font.render("Press ENTER to start", True, self.WHITE)
+        self.screen.blit(start_text, (self.WIDTH // 2 - start_text.get_width() // 2, 500))
+
+        pygame.display.flip()
+
+    def run(self):
+        running = True
+        while running:
+            running = self.handle_events()
+            
+            if self.game_state == 'MENU':
+                self.draw_menu()
+            elif self.game_state == 'START_SCREEN':
+                self.draw_start_screen()
+            elif self.game_state == 'PLAYING':
+                self.move_paddles()
+                self.move_ball()
+
+                if self.check_winner():
+                    self.game_state = 'GAME_OVER'
+                    if self.game_mode == 'PLAYER_VS_AI' and self.left_score > self.right_score:
+                        self.db_config("Left Player")
+
+                self.draw_game()
+            elif self.game_state == 'GAME_OVER':
+                self.draw_game_over()
+            
+            self.clock.tick(self.FPS)
+
+        pygame.quit()
+
+if __name__ == "__main__":
+    user_id = sys.argv[1]
+    game = Game(user_id)
+    game.run()
