@@ -84,29 +84,47 @@ class Snake:
                 cursor.execute(query_check_user, (user_id,)) 
                 result = cursor.fetchone()
 
+                query_monedas = "SELECT monedas FROM usuario WHERE id_user = %s"
+                cursor.execute(query_monedas, (user_id,)) 
+                result_monedas = cursor.fetchone()
+
+                query_logros = "SELECT logro FROM actividad WHERE id_user = %s and id_juego = 1"
+                cursor.execute(query_logros, (user_id,)) 
+                result_logros = cursor.fetchone()
+                logros = result_logros[0]
+                
                 if result is not None:
                     db_score = result[0]
+                    monedas=result_monedas[0]
                     if db_score <= score:
                         query_update_max_score = "UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 1"
                         cursor.execute(query_update_max_score, ((score), user_id))
-                    
+                        
                     if score > 0:
                         query_primer_logro = "UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 1"
                         cursor.execute(query_primer_logro, (user_id,))
-
-                    if score >= 20:
+                        if logros<1:
+                            monedas+=100
+                    if score >= 5:
                         query_segundo_logro = "UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 1"
                         cursor.execute(query_segundo_logro, (user_id,))
-
+                        if logros<11:
+                            monedas+=1000
                     if score >= 1197:
                         query_tercer_logro = "UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 1"
                         cursor.execute(query_tercer_logro, (user_id,))
-
+                        if logros<111:
+                            monedas+=10000
                 else:
                     query_insert_new_user = """INSERT INTO actividad (id_user, id_juego, puntaje, tiempo, ult_ingreso) VALUES (%s, 1, %s, 0, %s)"""
                     cursor.execute(query_insert_new_user, (user_id, score, datetime.datetime.now().strftime('%Y-%m-%d')))
 
                 self.update_game_time(cursor, connection, user_id)
+                
+                
+                print(monedas)
+                query_tercer_logro = "UPDATE usuario SET monedas = %s WHERE id_user = %s"
+                cursor.execute(query_tercer_logro, (monedas,user_id))
 
                 query_update_last_login = """UPDATE actividad SET ult_ingreso = %s WHERE id_user = %s AND id_juego = 1"""
                 cursor.execute(query_update_last_login, (datetime.datetime.now().strftime('%Y-%m-%d'), user_id))
@@ -278,7 +296,6 @@ def main():
 
         if snake.die():
             snake.scoreQuery(score)
-            print(score)
             score = 0 
             snake.pause()
 
