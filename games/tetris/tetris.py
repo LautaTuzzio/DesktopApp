@@ -237,16 +237,32 @@ class TetrisGame:
                         return False
         return True
 
+
     def rotate_piece(self):
+        original_shape = self.current_piece.shape
+        original_x = self.current_piece.x
         rotated = list(zip(*self.current_piece.shape[::-1]))
-        if self.valid_move(self.current_piece, 0, 0):
-            self.current_piece.shape = rotated
+        self.current_piece.shape = rotated
+
+        # Push the piece back to the left if it's out of bounds
+        while not self.valid_move(self.current_piece, 0, 0):
+            self.current_piece.x -= 1
+            if self.current_piece.x < 0:
+                # If pushed too far left, revert rotation
+                self.current_piece.shape = original_shape
+                self.current_piece.x = original_x
+                break
 
     def place_piece(self):
         for y, row in enumerate(self.current_piece.shape):
             for x, cell in enumerate(row):
                 if cell:
-                    self.grid[self.current_piece.y + y][self.current_piece.x + x] = self.current_piece.color
+                    grid_y = self.current_piece.y + y
+                    grid_x = self.current_piece.x + x
+                    if 0 <= grid_y < GRID_HEIGHT and 0 <= grid_x < GRID_WIDTH:
+                        self.grid[grid_y][grid_x] = self.current_piece.color
+                    else:
+                        print(f"Warning: Attempted to place piece outside grid bounds at ({grid_x}, {grid_y})")
         self.clear_lines()
         self.current_piece = self.next_piece
         self.next_piece = Tetromino()
@@ -260,6 +276,7 @@ class TetrisGame:
         new_grid = [[BLACK for _ in range(GRID_WIDTH)] for _ in range(lines_cleared)] + new_grid
         self.grid = new_grid
         self.score += lines_cleared ** 2 * 100
+        
     def run(self):
         while True:  
             self.reset_game() 
