@@ -1,261 +1,335 @@
 import pygame
 import sys
+import os
+import math
 import random
 
-# Inicializa Pygame
+# Inicialización de Pygame
 pygame.init()
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Galaga")
 
-# Configuración de FPS y reloj
-fps = 30
-clock = pygame.time.Clock()
+# Colores
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
 
-# Dimensiones de la pantalla
-height = 480
-width = 720
-pantalla = pygame.display.set_mode((width, height))
-pygame.display.set_caption('Galaga')
+# Cargar imágenes
+def load_image(name, scale=1):
+    fullname = os.path.join('games', 'galaga', name)
+    image = pygame.image.load(fullname)
+    size = image.get_size()
+    scaled_size = (int(size[0] * scale), int(size[1] * scale))
+    return pygame.transform.scale(image, scaled_size)
 
-# Función para cargar y escalar imágenes
-def cargar_y_escalar(nombre_archivo, escala=0.5):
-    imagen = pygame.image.load(nombre_archivo)
-    nuevo_tamaño = (int(imagen.get_width() * escala), int(imagen.get_height() * escala))
-    return pygame.transform.scale(imagen, nuevo_tamaño)
+player_img = load_image('nave.png', 0.5)
+enemy_img = load_image('malo.png', 0.5)
+bullet_img = load_image('bala.png', 0.5)
 
-# Carga de imágenes de sprites
-icono = cargar_y_escalar('nave.png')
-bala_imagen = cargar_y_escalar('bala.png')
-enemigo_imagen = cargar_y_escalar('malo.png')
-bala_enemigo_imagen = cargar_y_escalar('bala.png', 0.3)
-vida_imagen = cargar_y_escalar('vida.png')
-
-# Establece el ícono de la ventana
-pygame.display.set_icon(icono)
-
-# Clase para el jugador
+# Jugador
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = icono
+        self.image = player_img
         self.rect = self.image.get_rect()
-        self.rect.center = (width // 2, height - 50)
-        self.velocidad_x = 0
-        self.velocidad = 7
-        self.balas = pygame.sprite.Group()  # Grupo para las balas del jugador
-        self.vidas = 3  # Vidas del jugador
-        self.invulnerable = False  # Estado de invulnerabilidad
-        self.tiempo_invulnerable = 0  # Temporizador de invulnerabilidad
+        self.rect.centerx = width // 2
+        self.rect.bottom = height - 10
+        self.speed = 5
+        self.lives = 3
+        self.invulnerable = False
+        self.invulnerable_timer = 0
+        self.can_shoot = False
 
     def update(self):
-        teclas = pygame.key.get_pressed()
-        
-        # Movimiento del jugador
-        if teclas[pygame.K_LEFT]:
-            self.velocidad_x = -self.velocidad
-        elif teclas[pygame.K_RIGHT]:
-            self.velocidad_x = self.velocidad
-        else:
-            self.velocidad_x = 0
-        
-        self.rect.x += self.velocidad_x
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and self.rect.left > 0:
+            self.rect.x -= self.speed
+        if keys[pygame.K_RIGHT] and self.rect.right < width:
+            self.rect.x += self.speed
 
-        # Limitar movimiento dentro de la pantalla
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > width:
-            self.rect.right = width
-
-        self.balas.update()
-
-        # Control de invulnerabilidad
         if self.invulnerable:
-            self.tiempo_invulnerable -= 1
-            if self.tiempo_invulnerable <= 0:
+            self.invulnerable_timer -= 1
+            if self.invulnerable_timer <= 0:
                 self.invulnerable = False
 
-    def disparar(self):
-        nueva_bala = Bullet(self.rect.centerx, self.rect.top)
-        self.balas.add(nueva_bala)  # Agregar la nueva bala al grupo
+    def shoot(self):
+        if self.can_shoot:
+            return Bullet(self.rect.centerx, self.rect.top, -10, bullet_img)
+        return None
 
-    def golpeado(self):
-        if not self.invulnerable:  # Si no es invulnerable, pierde una vida
-            self.vidas -= 1
+    def hit(self):
+        if not self.invulnerable:
+            self.lives -= 1
             self.invulnerable = True
-            self.tiempo_invulnerable = 90  # Temporizador de invulnerabilidad
+            self.invulnerable_timer = 90
+            print(f"Vidas restantes: {self.lives}")
 
-# Clase para las balas
-class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, velocidad=-10, imagen=bala_imagen):
-        super().__init__()
-        self.image = imagen
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-        self.velocidad = velocidad  # Velocidad de la bala
-
-    def update(self):
-        self.rect.y += self.velocidad  # Mueve la bala hacia arriba
-        if self.rect.bottom < 0 or self.rect.top > height:
-            self.kill()  # Elimina la bala si sale de la pantalla
-
-# Clase para los enemigos
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, formation_index, level):
         super().__init__()
-        self.image = enemigo_imagen
+        self.image = enemy_img
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.contador_disparo = 0  # Contador para controlar el disparo
+        self.original_x = x
+        self.original_y = y
+        self.formation_index = formation_index
+        self.state = "entering"
+        self.path = []
+        self.path_index = 0
+        self.speed = 2 + (level - 1) * 0.5  # Aumenta la velocidad con el nivel
+        self.health = 1 + (level // 5)  # Aumenta la resistencia cada 5 niveles
 
-    def update(self):
-        self.contador_disparo += 1
-        if self.contador_disparo >= 60:  # Dispara cada 60 frames
-            self.disparar()
-            self.contador_disparo = 0
-
-    def disparar(self):
-        nueva_bala = Bullet(self.rect.centerx, self.rect.bottom, 3, bala_enemigo_imagen)  # Dispara más lento
-        return nueva_bala  # Devuelve una nueva bala enemiga
-
-# Clase para la flota de enemigos
-class EnemyFleet:
-    def __init__(self):
-        self.enemies = pygame.sprite.Group()  # Grupo de enemigos
-        self.velocidad = 2  # Velocidad de movimiento de los enemigos
-        self.direccion = 1  # Dirección del movimiento (1: derecha, -1: izquierda)
-        self.limite_descenso = height * 0.6  # Límite de descenso
-        self.crear_flota()
-
-    def crear_flota(self):
-        # Crea una flota de enemigos en filas y columnas
-        for fila in range(3):
-            for columna in range(10):
-                enemy = Enemy(columna * 60 + 50, fila * 50 + 50)
-                self.enemies.add(enemy)
-
-    def update(self):
-        self.enemies.update()  # Actualiza el estado de todos los enemigos
-        
-        for enemy in self.enemies:
-            if enemy.rect.bottom < self.limite_descenso:  # Mueve los enemigos hacia abajo
-                enemy.rect.y += self.velocidad
+    def update(self, formation_offset_x):
+        if self.state == "entering":
+            if self.path_index < len(self.path):
+                target_x, target_y = self.path[self.path_index]
+                dx = target_x - self.rect.x
+                dy = target_y - self.rect.y
+                distance = math.sqrt(dx**2 + dy**2)
+                if distance > self.speed:
+                    self.rect.x += (dx / distance) * self.speed
+                    self.rect.y += (dy / distance) * self.speed
+                else:
+                    self.rect.x = target_x
+                    self.rect.y = target_y
+                    self.path_index += 1
             else:
-                # Cambia la dirección de los enemigos
-                enemy.rect.x += self.velocidad * self.direccion
-                if enemy.rect.right >= width or enemy.rect.left <= 0:
-                    self.direccion *= -1
-                    break
+                self.state = "formation"
+        elif self.state == "formation":
+            self.rect.x = self.original_x + formation_offset_x
+        elif self.state == "attacking":
+            if self.path_index < len(self.path):
+                target_x, target_y = self.path[self.path_index]
+                dx = target_x - self.rect.x
+                dy = target_y - self.rect.y
+                distance = math.sqrt(dx**2 + dy**2)
+                if distance > self.speed:
+                    self.rect.x += (dx / distance) * self.speed
+                    self.rect.y += (dy / distance) * self.speed
+                else:
+                    self.rect.x = target_x
+                    self.rect.y = target_y
+                    self.path_index += 1
+            else:
+                self.kill()
 
-# Función para mostrar texto en pantalla
-def mostrar_texto(superficie, texto, tamaño, x, y):
-    font = pygame.font.Font(None, tamaño)
-    texto_superficie = font.render(texto, True, (255, 255, 255))
-    texto_rect = texto_superficie.get_rect()
-    texto_rect.midtop = (x, y)
-    superficie.blit(texto_superficie, texto_rect)
+    def start_attack(self, player_x):
+        self.state = "attacking"
+        self.path = self.generate_attack_path(player_x)
+        self.path_index = 0
 
-# Función para la pantalla de inicio
-def pantalla_inicio():
-    pantalla.fill((0, 0, 0))
-    mostrar_texto(pantalla, "Galaga", 64, width // 2, height // 4)
-    mostrar_texto(pantalla, "Presiona cualquier tecla para comenzar", 22, width // 2, height // 2)
-    pygame.display.flip()
-    esperando = True
-    while esperando:
-        clock.tick(fps)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYUP:
-                esperando = False
-
-# Función para la pantalla de fin de juego
-def pantalla_fin(mensaje):
-    pantalla.fill((0, 0, 0))
-    mostrar_texto(pantalla, mensaje, 64, width // 2, height // 4)
-    mostrar_texto(pantalla, "Presiona R para reiniciar o Q para salir", 22, width // 2, height // 2)
-    pygame.display.flip()
-    esperando = True
-    while esperando:
-        clock.tick(fps)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_r:
-                    return True  # Reiniciar el juego
-                elif event.key == pygame.K_q:
-                    return False  # Salir del juego
-
-# Función principal del juego
-def juego():
-    player = Player()  # Crea un jugador
-    fleet = EnemyFleet()  # Crea la flota de enemigos
-    sprites = pygame.sprite.Group(player)  # Grupo de sprites para el jugador
-    balas_enemigas = pygame.sprite.Group()  # Grupo para las balas enemigas
-
-    while True:
-        clock.tick(fps)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    player.disparar()  # Dispara al presionar espacio
-
-        sprites.update()  # Actualiza los sprites
-        fleet.update()  # Actualiza la flota de enemigos
-        balas_enemigas.update()  # Actualiza las balas enemigas
+    def generate_attack_path(self, player_x):
+        path = []
+        start_x, start_y = self.rect.x, self.rect.y
+        end_x = player_x
+        end_y = height + 50
         
-        # Generar balas enemigas aleatorias
-        for enemy in fleet.enemies:
-            if random.randint(1, 200) == 1:  # Probabilidad de disparo
-                balas_enemigas.add(enemy.disparar())
+        for i in range(20):
+            t = i / 19
+            x = start_x + (end_x - start_x) * t
+            y = start_y + (end_y - start_y) * (t ** 2)
+            path.append((int(x), int(y)))
         
-        # Colisiones entre balas del jugador y enemigos
-        hits = pygame.sprite.groupcollide(fleet.enemies, player.balas, True, True)
+        return path
+
+    def set_entry_path(self, path):
+        self.path = path
+        self.path_index = 0
+
+    def shoot(self):
+        return Bullet(self.rect.centerx, self.rect.bottom, 5, bullet_img)
+
+class EnemyFormation:
+    def __init__(self):
+        self.enemies = pygame.sprite.Group()
+        self.offset_x = 0
+        self.direction = 1
+        self.speed = 0.5
+        self.formation_complete = False
+
+    def create_enemies(self, level):
+        self.enemies.empty()
+        self.formation_complete = False
+        num_enemies = 30 if level % 5 == 0 else 20
+        rows = 4 if num_enemies == 20 else 5
+        cols = 5 if num_enemies == 20 else 6
         
-        # Colisiones entre balas enemigas y jugador
-        if pygame.sprite.spritecollide(player, balas_enemigas, True):
-            player.golpeado()  # El jugador es golpeado
-            if player.vidas <= 0:
-                return "Game Over"
+        for row in range(rows):
+            for col in range(cols):
+                x = 150 + col * 50
+                y = 50 + row * 50
+                enemy = Enemy(x, y, row * cols + col, level)
+                self.enemies.add(enemy)
+                all_sprites.add(enemy)
 
-        # Colisiones entre balas enemigas y balas del jugador
-        pygame.sprite.groupcollide(balas_enemigas, player.balas, True, True)
+        self.set_entry_paths()
 
-        # Condición de victoria
-        if len(fleet.enemies) == 0:
-            return "Winner!"
+    def set_entry_paths(self):
+        for enemy in self.enemies:
+            path = self.generate_entry_path(enemy.rect.x, enemy.rect.y)
+            enemy.set_entry_path(path)
 
-        pantalla.fill((0, 0, 0))  # Limpia la pantalla
-        sprites.draw(pantalla)  # Dibuja al jugador
-        fleet.enemies.draw(pantalla)  # Dibuja los enemigos
-        player.balas.draw(pantalla)  # Dibuja las balas del jugador
-        balas_enemigas.draw(pantalla)  # Dibuja las balas enemigas
+    def generate_entry_path(self, end_x, end_y):
+        path = []
+        start_x = random.randint(0, width)
+        start_y = -50
+        control_x = random.randint(0, width)
+        control_y = random.randint(0, end_y)
+        
+        for i in range(30):
+            t = i / 29
+            x = (1-t)**2 * start_x + 2*(1-t)*t * control_x + t**2 * end_x
+            y = (1-t)**2 * start_y + 2*(1-t)*t * control_y + t**2 * end_y
+            path.append((int(x), int(y)))
+        
+        return path
 
-        # Mostrar vidas en la esquina superior izquierda
-        for i in range(player.vidas):
-            pantalla.blit(pygame.transform.scale(vida_imagen, (15, 15)), (10 + i * 20, 10))  # Tamaño reducido
+    def update(self):
+        self.offset_x += self.speed * self.direction
+        if abs(self.offset_x) > 50:
+            self.direction *= -1
 
-        if player.invulnerable:
-            player.image.set_alpha(128)
-        else:
-            player.image.set_alpha(255)
+        all_in_formation = True
+        for enemy in self.enemies:
+            enemy.update(self.offset_x)
+            if enemy.state != "formation":
+                all_in_formation = False
 
-        pygame.display.flip()  # Actualiza la pantalla
+        if all_in_formation and not self.formation_complete:
+            self.formation_complete = True
+            player.can_shoot = True
+
+    def get_attackers(self, num_attackers):
+        attackers = [e for e in self.enemies if e.state == "formation"]
+        if len(attackers) > num_attackers:
+            return random.sample(attackers, num_attackers)
+        return attackers
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y, speed, image):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+        self.speed = speed
+
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.bottom < 0 or self.rect.top > height:
+            self.kill()
+
+# Grupos de sprites
+all_sprites = pygame.sprite.Group()
+player_bullets = pygame.sprite.Group()
+enemy_bullets = pygame.sprite.Group()
+
+# Crear jugador
+player = Player()
+all_sprites.add(player)
+
+# Crear formación de enemigos
+enemy_formation = EnemyFormation()
+
+# Reloj y fuente
+clock = pygame.time.Clock()
+font = pygame.font.Font(None, 36)
+
+# Puntuación y nivel
+score = 0
+level = 1
+
+# Iniciar el primer nivel
+enemy_formation.create_enemies(level)
 
 # Bucle principal del juego
-while True:
-    pantalla_inicio()  # Muestra la pantalla de inicio
-    resultado = juego()  # Inicia el juego
-    if resultado:
-        continuar = pantalla_fin(resultado)  # Muestra la pantalla de fin
-        if not continuar:
-            break  # Sale si el jugador decide no reiniciar
-    else:
-        break  # Sale si se cierra el juego
+running = True
+attack_timer = 0
+enemy_shoot_timer = 0
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                bullet = player.shoot()
+                if bullet:
+                    all_sprites.add(bullet)
+                    player_bullets.add(bullet)
 
-pygame.quit()  # Cierra Pygame
-sys.exit()  # Sale del sistema
+    # Actualización
+    player.update()
+    enemy_formation.update()
+    player_bullets.update()
+    enemy_bullets.update()
+
+    # Gestión de ataques enemigos
+    if enemy_formation.formation_complete:
+        attack_timer += 1
+        if attack_timer >= max(60, 180 - level * 5):  # Reduce el tiempo entre ataques con el nivel
+            attack_timer = 0
+            num_attackers = min(2 + level // 3, 5)  # Aumenta el número de atacantes con el nivel, máximo 5
+            attackers = enemy_formation.get_attackers(num_attackers)
+            for attacker in attackers:
+                attacker.start_attack(player.rect.centerx)
+
+        # Disparos enemigos
+        enemy_shoot_timer += 1
+        if enemy_shoot_timer >= max(30, 90 - level * 2):  # Aumenta la frecuencia de disparos con el nivel
+            enemy_shoot_timer = 0
+            shooting_enemy = random.choice(enemy_formation.enemies.sprites())
+            bullet = shooting_enemy.shoot()
+            all_sprites.add(bullet)
+            enemy_bullets.add(bullet)
+
+    # Colisiones bala jugador-enemigo
+    hits = pygame.sprite.groupcollide(enemy_formation.enemies, player_bullets, False, True)
+    for enemy in hits:
+        enemy.health -= 1
+        if enemy.health <= 0:
+            enemy.kill()
+            score += 10 * level  # Aumenta el puntaje con el nivel
+
+    # Colisiones enemigo-jugador y bala enemiga-jugador
+    if (pygame.sprite.spritecollide(player, enemy_formation.enemies, True) or 
+        pygame.sprite.spritecollide(player, enemy_bullets, True)) and not player.invulnerable:
+        player.hit()
+        if player.lives <= 0:
+            running = False
+
+    # Comprobación de victoria del nivel
+    if len(enemy_formation.enemies) == 0:
+        level += 1
+        player.can_shoot = False
+        enemy_formation.create_enemies(level)
+
+    # Dibujo
+    screen.fill(BLACK)
+    all_sprites.draw(screen)
+
+    # Mostrar puntuación, vidas y nivel
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    lives_text = font.render(f"Lives: {player.lives}", True, WHITE)
+    level_text = font.render(f"Level: {level}", True, WHITE)
+    screen.blit(score_text, (10, 10))
+    screen.blit(lives_text, (width - 100, 10))
+    screen.blit(level_text, (width // 2 - 40, 10))
+
+    pygame.display.flip()
+    clock.tick(60)
+
+# Game Over
+screen.fill(BLACK)
+game_over_text = font.render("GAME OVER", True, RED)
+final_score_text = font.render(f"Final Score: {score}", True, WHITE)
+screen.blit(game_over_text, (width // 2 - 70, height // 2 - 50))
+screen.blit(final_score_text, (width // 2 - 70, height // 2 + 50))
+pygame.display.flip()
+
+# Esperar antes de cerrar
+pygame.time.wait(3000)
+
+pygame.quit()
+sys.exit()
