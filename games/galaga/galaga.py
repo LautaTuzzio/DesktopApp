@@ -6,6 +6,7 @@ import random
 
 # Inicialización de Pygame
 pygame.init()
+pygame.mixer.init()  # Inicializamos el mixer para los sonidos
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Galaga")
@@ -23,15 +24,24 @@ def load_image(name, scale=1):
     scaled_size = (int(size[0] * scale), int(size[1] * scale))
     return pygame.transform.scale(image, scaled_size)
 
+# Cargar sonidos
+def load_sound(name):
+    fullname = os.path.join('games', 'galaga', name)
+    return pygame.mixer.Sound(fullname)
+
 player_img = load_image('nave.png', 0.5)
 enemy_img = load_image('malo.png', 0.5)
 bullet_img = load_image('bala.png', 0.5)
+life_img = load_image('vida.png', 0.05)
+shoot_sound = load_sound('shoot.wav')
+explosion_sound = load_sound('explosion.wav')
 
 # Jugador
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = player_img
+        self.original_image = player_img
+        self.image = self.original_image
         self.rect = self.image.get_rect()
         self.rect.centerx = width // 2
         self.rect.bottom = height - 10
@@ -49,12 +59,21 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.speed
 
         if self.invulnerable:
+            # Ajustar la opacidad durante la invulnerabilidad
+            alpha = 128 + int(127 * math.sin(pygame.time.get_ticks() * 0.01))
+            self.image = self.original_image.copy()
+            self.image.set_alpha(alpha)
+            
             self.invulnerable_timer -= 1
             if self.invulnerable_timer <= 0:
                 self.invulnerable = False
+                self.image = self.original_image
+        else:
+            self.image = self.original_image
 
     def shoot(self):
         if self.can_shoot:
+            shoot_sound.play()
             return Bullet(self.rect.centerx, self.rect.top, -10, bullet_img)
         return None
 
@@ -78,8 +97,8 @@ class Enemy(pygame.sprite.Sprite):
         self.state = "entering"
         self.path = []
         self.path_index = 0
-        self.speed = 2 + (level - 1) * 0.5  # Aumenta la velocidad con el nivel
-        self.health = 1 + (level // 5)  # Aumenta la resistencia cada 5 niveles
+        self.speed = 2 + (level - 1) * 0.5
+        self.health = 1 + (level // 5)
 
     def update(self, formation_offset_x):
         if self.state == "entering":
@@ -113,7 +132,11 @@ class Enemy(pygame.sprite.Sprite):
                     self.rect.y = target_y
                     self.path_index += 1
             else:
-                self.kill()
+                # En lugar de kill(), volvemos a la formación
+                self.state = "entering"
+                self.path = enemy_formation.generate_entry_path(self.original_x, self.original_y)
+                self.path_index = 0
+                self.rect.y = -50  # Posicionamos la nave arriba de la pantalla
 
     def start_attack(self, player_x):
         self.state = "attacking"
@@ -268,16 +291,16 @@ while running:
     # Gestión de ataques enemigos
     if enemy_formation.formation_complete:
         attack_timer += 1
-        if attack_timer >= max(60, 180 - level * 5):  # Reduce el tiempo entre ataques con el nivel
+        if attack_timer >= max(60, 180 - level * 5):
             attack_timer = 0
-            num_attackers = min(2 + level // 3, 5)  # Aumenta el número de atacantes con el nivel, máximo 5
+            num_attackers = min(2 + level // 3, 5)
             attackers = enemy_formation.get_attackers(num_attackers)
             for attacker in attackers:
                 attacker.start_attack(player.rect.centerx)
 
         # Disparos enemigos
         enemy_shoot_timer += 1
-        if enemy_shoot_timer >= max(30, 90 - level * 2):  # Aumenta la frecuencia de disparos con el nivel
+        if enemy_shoot_timer >= max(30, 90 - level * 2):
             enemy_shoot_timer = 0
             shooting_enemy = random.choice(enemy_formation.enemies.sprites())
             bullet = shooting_enemy.shoot()
@@ -289,8 +312,28 @@ while running:
     for enemy in hits:
         enemy.health -= 1
         if enemy.health <= 0:
+            explosion_sound.play()
             enemy.kill()
-            score += 10 * level  # Aumenta el puntaje con el nivel
+            score += 10 * level
+
+    # Colisiones enemigo-jugador y bala enemiga-jugador
+    if (pygame.sprite.spritecollide(player, enemy_formation.enemies, True) or 
+        pygame.sprite.spritecollide(player, enemy_bullets, True)) and not player.invulnerable:
+        player.hit()
+        if player.lives <= 0:
+            running = False
+
+        # Colisiones bala jugador-enemigo
+    hits = pygame.sprite.groupcollide(enemy_formation.enemies, player_bullets, False, True)
+    for enemy in hits:
+        enemy.health -= 1
+        if enemy.health <= 0:
+            explosion_sound.play()
+            enemy.kill()
+            score += 10 * level
+
+    # Nueva colisión: bala jugador-bala enemiga
+    pygame.sprite.groupcollide(player_bullets, enemy_bullets, True, True)
 
     # Colisiones enemigo-jugador y bala enemiga-jugador
     if (pygame.sprite.spritecollide(player, enemy_formation.enemies, True) or 
@@ -309,13 +352,15 @@ while running:
     screen.fill(BLACK)
     all_sprites.draw(screen)
 
-    # Mostrar puntuación, vidas y nivel
+    # Mostrar puntuación y nivel
     score_text = font.render(f"Score: {score}", True, WHITE)
-    lives_text = font.render(f"Lives: {player.lives}", True, WHITE)
     level_text = font.render(f"Level: {level}", True, WHITE)
     screen.blit(score_text, (10, 10))
-    screen.blit(lives_text, (width - 100, 10))
     screen.blit(level_text, (width // 2 - 40, 10))
+
+    # Dibujar vidas como corazones
+    for i in range(player.lives):
+        screen.blit(life_img, (width - 35 - (i * 40), 10))
 
     pygame.display.flip()
     clock.tick(60)
