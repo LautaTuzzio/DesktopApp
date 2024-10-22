@@ -32,6 +32,7 @@ def load_sound(name):
 player_img = load_image('nave.png', 0.5)
 enemy_img = load_image('malo.png', 0.5)
 bullet_img = load_image('bala.png', 0.5)
+bulleta_img = load_image('balaAzul.png', 0.5)
 life_img = load_image('vida.png', 0.05)
 shoot_sound = load_sound('shoot.wav')
 explosion_sound = load_sound('explosion.wav')
@@ -162,7 +163,7 @@ class Enemy(pygame.sprite.Sprite):
         self.path_index = 0
 
     def shoot(self):
-        return Bullet(self.rect.centerx, self.rect.bottom, 5, bullet_img)
+        return Bullet(self.rect.centerx, self.rect.bottom, 5, bulleta_img)
 
 class EnemyFormation:
     def __init__(self):
@@ -181,7 +182,7 @@ class EnemyFormation:
         
         for row in range(rows):
             for col in range(cols):
-                x = 150 + col * 50
+                x = 250 + col * 50
                 y = 50 + row * 50
                 enemy = Enemy(x, y, row * cols + col, level)
                 self.enemies.add(enemy)
@@ -197,7 +198,7 @@ class EnemyFormation:
     def generate_entry_path(self, end_x, end_y):
         path = []
         start_x = random.randint(0, width)
-        start_y = -50
+        start_y = -10
         control_x = random.randint(0, width)
         control_y = random.randint(0, end_y)
         
