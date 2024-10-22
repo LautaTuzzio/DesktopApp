@@ -3,6 +3,10 @@ import sys
 import os
 import math
 import random
+import mysql.connector
+from mysql.connector import Error
+import datetime
+import time
 
 # Inicialización de Pygame
 pygame.init()
@@ -51,6 +55,8 @@ class Player(pygame.sprite.Sprite):
         self.invulnerable = False
         self.invulnerable_timer = 0
         self.can_shoot = False
+        self.start_time = time.time()
+        self.last_update_time = self.start_time
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -84,6 +90,95 @@ class Player(pygame.sprite.Sprite):
             self.invulnerable = True
             self.invulnerable_timer = 90
             print(f"Vidas restantes: {self.lives}")
+    
+    def update_database(self, final_score):
+        try:
+            config = {
+                "host": "localhost",
+                "database": "desktopapp",
+                "user": "root",
+                "password": ""
+            }
+            connection = mysql.connector.connect(**config)
+            
+            if connection.is_connected():
+                cursor = connection.cursor()
+                user_id = sys.argv[1]  # Obtener el ID del usuario desde los argumentos
+
+                # Verificar si el usuario ya tiene registros para Galaga
+                query_check_user = "SELECT puntaje, logro FROM actividad WHERE id_user = %s AND id_juego = 4"
+                cursor.execute(query_check_user, (user_id,))
+                result = cursor.fetchone()
+
+                # Obtener monedas actuales del usuario
+                query_monedas = "SELECT monedas FROM usuario WHERE id_user = %s"
+                cursor.execute(query_monedas, (user_id,))
+                result_monedas = cursor.fetchone()
+                monedas = result_monedas[0] if result_monedas else 0
+
+                current_time = time.time()
+                game_duration = int(current_time - self.start_time)
+                
+                if result:
+                    current_score = result[0]
+                    current_logro = result[1]
+                    
+                    # Actualizar puntuación máxima si es necesario
+                    if final_score > current_score:
+                        query_update_score = "UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 4"
+                        cursor.execute(query_update_score, (final_score, user_id))
+                    
+                    # Sistema de logros
+                    if final_score >= 100 and current_logro < '001':
+                        cursor.execute("UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 4", (user_id,))
+                        monedas += 100
+                    if final_score >= 500 and current_logro < '011':
+                        cursor.execute("UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 4", (user_id,))
+                        monedas += 1000
+                    if final_score >= 1000 and current_logro < '111':
+                        cursor.execute("UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 4", (user_id,))
+                        monedas += 10000
+                else:
+                    # Crear nuevo registro para el usuario
+                    query_insert = """
+                        INSERT INTO actividad (id_user, id_juego, puntaje, tiempo, ult_ingreso, logro) 
+                        VALUES (%s, 4, %s, %s, %s, '000')
+                    """
+                    cursor.execute(query_insert, (user_id, final_score, game_duration, 
+                                               datetime.datetime.now().strftime('%Y-%m-%d')))
+                    
+                    # Asignar logro inicial si corresponde
+                    if final_score >= 100:
+                        cursor.execute("UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 4", (user_id,))
+                        monedas += 100
+
+                # Actualizar monedas del usuario
+                cursor.execute("UPDATE usuario SET monedas = %s WHERE id_user = %s", (monedas, user_id))
+
+                # Actualizar tiempo de juego
+                hours, remainder = divmod(game_duration, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                time_format = f"{hours:02}:{minutes:02}:{seconds:02}"
+                
+                query_update_time = """
+                    UPDATE actividad 
+                    SET tiempo = ADDTIME(tiempo, %s),
+                        ult_ingreso = %s 
+                    WHERE id_user = %s AND id_juego = 4
+                """
+                cursor.execute(query_update_time, (time_format, 
+                                                datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                                user_id))
+
+                connection.commit()
+                print(f"Base de datos actualizada. Puntuación final: {final_score}")
+
+        except mysql.connector.Error as e:
+            print(f"Error en la base de datos: {e}")
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, formation_index, level):
@@ -245,6 +340,8 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0 or self.rect.top > height:
             self.kill()
 
+
+
 # Grupos de sprites
 all_sprites = pygame.sprite.Group()
 player_bullets = pygame.sprite.Group()
@@ -373,6 +470,9 @@ final_score_text = font.render(f"Final Score: {score}", True, WHITE)
 screen.blit(game_over_text, (width // 2 - 70, height // 2 - 50))
 screen.blit(final_score_text, (width // 2 - 70, height // 2 + 50))
 pygame.display.flip()
+
+# Actualizar base de datos antes de cerrar
+player.update_database(score)
 
 # Esperar antes de cerrar
 pygame.time.wait(3000)
