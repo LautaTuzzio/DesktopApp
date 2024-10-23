@@ -21,7 +21,7 @@ function createWindow() {
     mainWindow.loadURL(`http://localhost/${page}`)
   })
 
- // Menu.setApplicationMenu(null)
+ Menu.setApplicationMenu(null)
 }
 
 app.whenReady().then(() => {
