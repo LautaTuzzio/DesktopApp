@@ -67,6 +67,8 @@ class Snake:
         cursor.execute(query_update_time, (time_format, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user_id))
         connection.commit()
 
+    
+
     def scoreQuery(self, score):
         self.score = score
         try:
@@ -79,7 +81,7 @@ class Snake:
             connection = mysql.connector.connect(**config)
             if connection.is_connected():
                 cursor = connection.cursor()
-
+                
                 query_check_user = "SELECT puntaje FROM actividad WHERE id_user = %s AND id_juego = 1"
                 cursor.execute(query_check_user, (user_id,)) 
                 result = cursor.fetchone()
@@ -91,9 +93,10 @@ class Snake:
                 query_logros = "SELECT logro FROM actividad WHERE id_user = %s and id_juego = 1"
                 cursor.execute(query_logros, (user_id,)) 
                 result_logros = cursor.fetchone()
-                logros = result_logros[0]
+                
                 
                 if result is not None:
+                    logros = result_logros[0]
                     db_score = result[0]
                     monedas=result_monedas[0]
                     if db_score <= score:
@@ -105,7 +108,7 @@ class Snake:
                         cursor.execute(query_primer_logro, (user_id,))
                         if logros<1:
                             monedas+=100
-                    if score >= 5:
+                    if score >= 20:
                         query_segundo_logro = "UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 1"
                         cursor.execute(query_segundo_logro, (user_id,))
                         if logros<11:
