@@ -19,6 +19,7 @@ pygame.display.set_caption("Galaga")
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+GRAY = (128, 128, 128)
 
 # Cargar imágenes
 def load_image(name, scale=1):
@@ -57,6 +58,7 @@ class Player(pygame.sprite.Sprite):
         self.can_shoot = False
         self.start_time = time.time()
         self.last_update_time = self.start_time
+        self.total_time = datetime.timedelta()
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -90,8 +92,7 @@ class Player(pygame.sprite.Sprite):
             self.invulnerable = True
             self.invulnerable_timer = 90
             print(f"Vidas restantes: {self.lives}")
-    
-    def update_database(self, final_score):
+    def update_database(self, final_score, game_over=False):
         try:
             config = {
                 "host": "localhost",
@@ -103,75 +104,54 @@ class Player(pygame.sprite.Sprite):
             
             if connection.is_connected():
                 cursor = connection.cursor()
-                user_id = sys.argv[1]  # Obtener el ID del usuario desde los argumentos
+                user_id = sys.argv[1]
 
-                # Verificar si el usuario ya tiene registros para Galaga
-                query_check_user = "SELECT puntaje, logro FROM actividad WHERE id_user = %s AND id_juego = 4"
+                # Calcular tiempo de juego
+                current_time = time.time()
+                session_duration = int(current_time - self.last_update_time)
+                self.last_update_time = current_time
+                
+                # Convertir a formato tiempo
+                hours, remainder = divmod(session_duration, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                time_format = f"{hours:02}:{minutes:02}:{seconds:02}"
+
+                # Verificar registro existente
+                query_check_user = "SELECT puntaje, logro, tiempo FROM actividad WHERE id_user = %s AND id_juego = 4"
                 cursor.execute(query_check_user, (user_id,))
                 result = cursor.fetchone()
 
-                # Obtener monedas actuales del usuario
-                query_monedas = "SELECT monedas FROM usuario WHERE id_user = %s"
-                cursor.execute(query_monedas, (user_id,))
-                result_monedas = cursor.fetchone()
-                monedas = result_monedas[0] if result_monedas else 0
-
-                current_time = time.time()
-                game_duration = int(current_time - self.start_time)
-                
                 if result:
                     current_score = result[0]
                     current_logro = result[1]
-                    
-                    # Actualizar puntuación máxima si es necesario
+                    current_time = result[2] if result[2] else datetime.timedelta()
+
+                    # Actualizar puntuación si es mayor
                     if final_score > current_score:
-                        query_update_score = "UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 4"
-                        cursor.execute(query_update_score, (final_score, user_id))
-                    
-                    # Sistema de logros
-                    if final_score >= 100 and current_logro < '001':
-                        cursor.execute("UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 4", (user_id,))
-                        monedas += 100
-                    if final_score >= 500 and current_logro < '011':
-                        cursor.execute("UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 4", (user_id,))
-                        monedas += 1000
-                    if final_score >= 1000 and current_logro < '111':
-                        cursor.execute("UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 4", (user_id,))
-                        monedas += 10000
+                        cursor.execute("UPDATE actividad SET puntaje = %s WHERE id_user = %s AND id_juego = 4",
+                                     (final_score, user_id))
+
+                    # Actualizar tiempo de juego
+                    query_update_time = """
+                        UPDATE actividad 
+                        SET tiempo = ADDTIME(tiempo, %s),
+                            ult_ingreso = %s 
+                        WHERE id_user = %s AND id_juego = 4
+                    """
+                    cursor.execute(query_update_time, (time_format, 
+                                                     datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                                     user_id))
+
                 else:
-                    # Crear nuevo registro para el usuario
+                    # Crear nuevo registro
                     query_insert = """
                         INSERT INTO actividad (id_user, id_juego, puntaje, tiempo, ult_ingreso, logro) 
                         VALUES (%s, 4, %s, %s, %s, '000')
                     """
-                    cursor.execute(query_insert, (user_id, final_score, game_duration, 
+                    cursor.execute(query_insert, (user_id, final_score, time_format, 
                                                datetime.datetime.now().strftime('%Y-%m-%d')))
-                    
-                    # Asignar logro inicial si corresponde
-                    if final_score >= 100:
-                        cursor.execute("UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 4", (user_id,))
-                        monedas += 100
-
-                # Actualizar monedas del usuario
-                cursor.execute("UPDATE usuario SET monedas = %s WHERE id_user = %s", (monedas, user_id))
-
-                # Actualizar tiempo de juego
-                hours, remainder = divmod(game_duration, 3600)
-                minutes, seconds = divmod(remainder, 60)
-                time_format = f"{hours:02}:{minutes:02}:{seconds:02}"
-                
-                query_update_time = """
-                    UPDATE actividad 
-                    SET tiempo = ADDTIME(tiempo, %s),
-                        ult_ingreso = %s 
-                    WHERE id_user = %s AND id_juego = 4
-                """
-                cursor.execute(query_update_time, (time_format, 
-                                                datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                                                user_id))
 
                 connection.commit()
-                print(f"Base de datos actualizada. Puntuación final: {final_score}")
 
         except mysql.connector.Error as e:
             print(f"Error en la base de datos: {e}")
@@ -180,8 +160,58 @@ class Player(pygame.sprite.Sprite):
                 cursor.close()
                 connection.close()
 
+    def update_achievements(self, level):
+        try:
+            config = {
+                "host": "localhost",
+                "database": "desktopapp",
+                "user": "root",
+                "password": ""
+            }
+            connection = mysql.connector.connect(**config)
+            
+            if connection.is_connected():
+                cursor = connection.cursor()
+                user_id = sys.argv[1]
+
+                # Obtener logro actual
+                cursor.execute("SELECT logro FROM actividad WHERE id_user = %s AND id_juego = 4", (user_id,))
+                result = cursor.fetchone()
+                current_logro = str(result[0]) if result else '000'  # Convert to string explicitly
+
+                # Obtener monedas actuales
+                cursor.execute("SELECT monedas FROM usuario WHERE id_user = %s", (user_id,))
+                result_monedas = cursor.fetchone()
+                monedas = result_monedas[0] if result_monedas else 0
+
+                # Convertir current_logro a número para comparación
+                logro_num = int(current_logro)
+
+                # Actualizar logros basados en el nivel
+                if level >= 1 and logro_num < 1:
+                    cursor.execute("UPDATE actividad SET logro = '001' WHERE id_user = %s AND id_juego = 4", (user_id,))
+                    monedas += 1000
+                elif level >= 10 and logro_num < 11:
+                    cursor.execute("UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 4", (user_id,))
+                    monedas += 1000
+                elif level >= 20 and logro_num < 111:
+                    cursor.execute("UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 4", (user_id,))
+                    monedas += 10000
+
+                # Actualizar monedas
+                cursor.execute("UPDATE usuario SET monedas = %s WHERE id_user = %s", (monedas, user_id))
+                connection.commit()
+
+        except mysql.connector.Error as e:
+            print(f"Error en la base de datos: {e}")
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+
+
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, formation_index, level):
+    def __init__(self, x, y, formation_index, level, formation):  # Add formation parameter
         super().__init__()
         self.image = enemy_img
         self.rect = self.image.get_rect()
@@ -195,6 +225,7 @@ class Enemy(pygame.sprite.Sprite):
         self.path_index = 0
         self.speed = 2 + (level - 1) * 0.5
         self.health = 1 + (level // 5)
+        self.formation = formation  # Store formation reference
 
     def update(self, formation_offset_x):
         if self.state == "entering":
@@ -230,7 +261,7 @@ class Enemy(pygame.sprite.Sprite):
             else:
                 # En lugar de kill(), volvemos a la formación
                 self.state = "entering"
-                self.path = enemy_formation.generate_entry_path(self.original_x, self.original_y)
+                self.path = self.formation.generate_entry_path(self.original_x, self.original_y)  # Use formation reference
                 self.path_index = 0
                 self.rect.y = -50  # Posicionamos la nave arriba de la pantalla
 
@@ -261,12 +292,14 @@ class Enemy(pygame.sprite.Sprite):
         return Bullet(self.rect.centerx, self.rect.bottom, 5, bulleta_img)
 
 class EnemyFormation:
-    def __init__(self):
+    def __init__(self, all_sprites_group, player):
         self.enemies = pygame.sprite.Group()
         self.offset_x = 0
         self.direction = 1
         self.speed = 0.5
         self.formation_complete = False
+        self.all_sprites = all_sprites_group
+        self.player = player  # Store player reference
 
     def create_enemies(self, level):
         self.enemies.empty()
@@ -279,9 +312,9 @@ class EnemyFormation:
             for col in range(cols):
                 x = 250 + col * 50
                 y = 50 + row * 50
-                enemy = Enemy(x, y, row * cols + col, level)
+                enemy = Enemy(x, y, row * cols + col, level, self)  # Pass self as formation
                 self.enemies.add(enemy)
-                all_sprites.add(enemy)
+                self.all_sprites.add(enemy)
 
         self.set_entry_paths()
 
@@ -318,7 +351,7 @@ class EnemyFormation:
 
         if all_in_formation and not self.formation_complete:
             self.formation_complete = True
-            player.can_shoot = True
+            self.player.can_shoot = True  # Use the stored player reference
 
     def get_attackers(self, num_attackers):
         attackers = [e for e in self.enemies if e.state == "formation"]
@@ -340,142 +373,139 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0 or self.rect.top > height:
             self.kill()
 
+def main_game():
+    # Variables de juego
+    score = 0
+    level = 1
+    game_over = False
+    restart_prompt = False
+    
+    # Grupos de sprites
+    all_sprites = pygame.sprite.Group()
+    player_bullets = pygame.sprite.Group()
+    enemy_bullets = pygame.sprite.Group()
+    
+    # Crear jugador y formación de enemigos
+    player = Player()
+    all_sprites.add(player)
+    enemy_formation = EnemyFormation(all_sprites, player)  # Pass player instance here
+    enemy_formation.create_enemies(level)
+    
+    # Temporizadores
+    attack_timer = 0
+    enemy_shoot_timer = 0
+    
+    # Fuente
+    font = pygame.font.Font(None, 36)
+    small_font = pygame.font.Font(None, 24)
+    
+    # Bucle principal
+    running = True
+    clock = pygame.time.Clock()
+    
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                player.update_database(score, True)
+                return False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not game_over:
+                    bullet = player.shoot()
+                    if bullet:
+                        all_sprites.add(bullet)
+                        player_bullets.add(bullet)
+                elif event.key == pygame.K_r and game_over:
+                    return True
 
+        if not game_over:
+            # Actualización de elementos del juego
+            player.update()
+            enemy_formation.update()
+            player_bullets.update()
+            enemy_bullets.update()
 
-# Grupos de sprites
-all_sprites = pygame.sprite.Group()
-player_bullets = pygame.sprite.Group()
-enemy_bullets = pygame.sprite.Group()
+            # Gestión de ataques enemigos
+            if enemy_formation.formation_complete:
+                attack_timer += 1
+                if attack_timer >= max(60, 180 - level * 5):
+                    attack_timer = 0
+                    num_attackers = min(2 + level // 3, 5)
+                    attackers = enemy_formation.get_attackers(num_attackers)
+                    for attacker in attackers:
+                        attacker.start_attack(player.rect.centerx)
 
-# Crear jugador
-player = Player()
-all_sprites.add(player)
+                enemy_shoot_timer += 1
+                if enemy_shoot_timer >= max(30, 90 - level * 2):
+                    enemy_shoot_timer = 0
+                    if enemy_formation.enemies:
+                        shooting_enemy = random.choice(enemy_formation.enemies.sprites())
+                        bullet = shooting_enemy.shoot()
+                        all_sprites.add(bullet)
+                        enemy_bullets.add(bullet)
 
-# Crear formación de enemigos
-enemy_formation = EnemyFormation()
+            # Colisiones
+            hits = pygame.sprite.groupcollide(enemy_formation.enemies, player_bullets, False, True)
+            for enemy in hits:
+                enemy.health -= 1
+                if enemy.health <= 0:
+                    explosion_sound.play()
+                    enemy.kill()
+                    score += 10 * level
 
-# Reloj y fuente
-clock = pygame.time.Clock()
-font = pygame.font.Font(None, 36)
+            pygame.sprite.groupcollide(player_bullets, enemy_bullets, True, True)
 
-# Puntuación y nivel
-score = 0
-level = 1
+            if (pygame.sprite.spritecollide(player, enemy_formation.enemies, True) or 
+                pygame.sprite.spritecollide(player, enemy_bullets, True)) and not player.invulnerable:
+                player.hit()
+                if player.lives <= 0:
+                    game_over = True
+                    player.update_database(score)
 
-# Iniciar el primer nivel
-enemy_formation.create_enemies(level)
+            # Verificar victoria del nivel
+            if len(enemy_formation.enemies) == 0:
+                level += 1
+                player.can_shoot = False
+                enemy_formation.create_enemies(level)
+                player.update_achievements(level)
 
-# Bucle principal del juego
-running = True
-attack_timer = 0
-enemy_shoot_timer = 0
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                bullet = player.shoot()
-                if bullet:
-                    all_sprites.add(bullet)
-                    player_bullets.add(bullet)
+        # Dibujo
+        screen.fill(BLACK)
+        all_sprites.draw(screen)
 
-    # Actualización
-    player.update()
-    enemy_formation.update()
-    player_bullets.update()
-    enemy_bullets.update()
+        # Mostrar información del juego
+        score_text = font.render(f"Score: {score}", True, WHITE)
+        level_text = font.render(f"Level: {level}", True, WHITE)
+        controls_text = small_font.render("<- -> to move, Space to shoot", True, GRAY)
+        
+        screen.blit(score_text, (10, 10))
+        screen.blit(level_text, (width // 2 - 40, 10))
+        screen.blit(controls_text, (10, height - 30))
 
-    # Gestión de ataques enemigos
-    if enemy_formation.formation_complete:
-        attack_timer += 1
-        if attack_timer >= max(60, 180 - level * 5):
-            attack_timer = 0
-            num_attackers = min(2 + level // 3, 5)
-            attackers = enemy_formation.get_attackers(num_attackers)
-            for attacker in attackers:
-                attacker.start_attack(player.rect.centerx)
+        # Dibujar vidas
+        for i in range(player.lives):
+            screen.blit(life_img, (width - 35 - (i * 40), 10))
 
-        # Disparos enemigos
-        enemy_shoot_timer += 1
-        if enemy_shoot_timer >= max(30, 90 - level * 2):
-            enemy_shoot_timer = 0
-            shooting_enemy = random.choice(enemy_formation.enemies.sprites())
-            bullet = shooting_enemy.shoot()
-            all_sprites.add(bullet)
-            enemy_bullets.add(bullet)
+        if game_over:
+            game_over_text = font.render("GAME OVER", True, RED)
+            final_score_text = font.render(f"Final Score: {score}", True, WHITE)
+            restart_text = font.render("Press R to Restart", True, WHITE)
+            
+            screen.blit(game_over_text, (width // 2 - 70, height // 2 - 50))
+            screen.blit(final_score_text, (width // 2 - 70, height // 2))
+            screen.blit(restart_text, (width // 2 - 70, height // 2 + 50))
 
-    # Colisiones bala jugador-enemigo
-    hits = pygame.sprite.groupcollide(enemy_formation.enemies, player_bullets, False, True)
-    for enemy in hits:
-        enemy.health -= 1
-        if enemy.health <= 0:
-            explosion_sound.play()
-            enemy.kill()
-            score += 10 * level
+        pygame.display.flip()
+        clock.tick(60)
 
-    # Colisiones enemigo-jugador y bala enemiga-jugador
-    if (pygame.sprite.spritecollide(player, enemy_formation.enemies, True) or 
-        pygame.sprite.spritecollide(player, enemy_bullets, True)) and not player.invulnerable:
-        player.hit()
-        if player.lives <= 0:
-            running = False
+        # Actualizar base de datos periódicamente
+        if not game_over and time.time() - player.last_update_time >= 60:  # Actualizar cada minuto
+            player.update_database(score)
 
-        # Colisiones bala jugador-enemigo
-    hits = pygame.sprite.groupcollide(enemy_formation.enemies, player_bullets, False, True)
-    for enemy in hits:
-        enemy.health -= 1
-        if enemy.health <= 0:
-            explosion_sound.play()
-            enemy.kill()
-            score += 10 * level
+    return False
 
-    # Nueva colisión: bala jugador-bala enemiga
-    pygame.sprite.groupcollide(player_bullets, enemy_bullets, True, True)
-
-    # Colisiones enemigo-jugador y bala enemiga-jugador
-    if (pygame.sprite.spritecollide(player, enemy_formation.enemies, True) or 
-        pygame.sprite.spritecollide(player, enemy_bullets, True)) and not player.invulnerable:
-        player.hit()
-        if player.lives <= 0:
-            running = False
-
-    # Comprobación de victoria del nivel
-    if len(enemy_formation.enemies) == 0:
-        level += 1
-        player.can_shoot = False
-        enemy_formation.create_enemies(level)
-
-    # Dibujo
-    screen.fill(BLACK)
-    all_sprites.draw(screen)
-
-    # Mostrar puntuación y nivel
-    score_text = font.render(f"Score: {score}", True, WHITE)
-    level_text = font.render(f"Level: {level}", True, WHITE)
-    screen.blit(score_text, (10, 10))
-    screen.blit(level_text, (width // 2 - 40, 10))
-
-    # Dibujar vidas como corazones
-    for i in range(player.lives):
-        screen.blit(life_img, (width - 35 - (i * 40), 10))
-
-    pygame.display.flip()
-    clock.tick(60)
-
-# Game Over
-screen.fill(BLACK)
-game_over_text = font.render("GAME OVER", True, RED)
-final_score_text = font.render(f"Final Score: {score}", True, WHITE)
-screen.blit(game_over_text, (width // 2 - 70, height // 2 - 50))
-screen.blit(final_score_text, (width // 2 - 70, height // 2 + 50))
-pygame.display.flip()
-
-# Actualizar base de datos antes de cerrar
-player.update_database(score)
-
-# Esperar antes de cerrar
-pygame.time.wait(3000)
+# Bucle principal del programa
+while main_game():
+    pass
 
 pygame.quit()
 sys.exit()
