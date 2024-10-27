@@ -16,13 +16,16 @@ ALTO = 480
 SNAKE_SIZE = 30
 APPLE_SIZE = 30
 user_id = sys.argv[1]
+body="games\snake\images\snakebody1.jpg"
+Head="games\snake\images\SnakeHead"
 
-SNAKE_BODY = pygame.transform.scale(pygame.image.load(os.path.join(r"games\snake\images\snakebody1.jpg")), (SNAKE_SIZE, SNAKE_SIZE))
+
+SNAKE_BODY = pygame.transform.scale(pygame.image.load(os.path.join(f"{body}")), (SNAKE_SIZE, SNAKE_SIZE))
 APPLE = pygame.transform.scale(pygame.image.load(os.path.join(r"games\snake\images\manzana.png")), (APPLE_SIZE, APPLE_SIZE))
 SNAKE_HEAD = []
 
 for x in range(1, 5):
-    SNAKE_HEAD.append(pygame.transform.scale(pygame.image.load(os.path.join(r"games\snake\images\SnakeHead"+str(x)+".png")), (SNAKE_SIZE, SNAKE_SIZE)))
+    SNAKE_HEAD.append(pygame.transform.scale(pygame.image.load(os.path.join(f"{Head}"+str(x)+".png")), (SNAKE_SIZE, SNAKE_SIZE)))
 
 EAT_SOUND = pygame.mixer.Sound("games\snake\coin.wav")
 
@@ -39,7 +42,7 @@ class Snake:
         self.start_time = time.time()
         self.last_update_time = self.start_time
         self.last_move_time = time.time()
-        self.move_delay = 0.1  # 100 ms delay between automatic moves
+        self.move_delay = 0.1
 
     def draw(self):
         for bloque in self.body:
@@ -272,6 +275,41 @@ class Apple:
 
         return False
 
+def get_background():
+    config = {
+        "host": "localhost",
+        "database": "desktopapp",
+        "user": "root",
+        "password": ""
+    }
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        query_skin = "SELECT estilos FROM actividad WHERE id_user = %s AND id_juego = 1"
+        cursor.execute(query_skin, (user_id,))
+        result = cursor.fetchone()
+
+        
+        if result is None or result[0] is None:
+            return (0, 0, 0)  
+        elif result[0] == 1:
+            return (144, 238, 144)
+        elif result[0] == 2:
+            return (255, 102, 102)
+        else:
+            return (50, 50, 50)
+
+    except mysql.connector.Error as e:
+        print(f"Error en la conexión a la base de datos: {e}")
+        return (0, 0, 0)  
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+
 def main():
     snake = Snake()
     apple = Apple()
@@ -295,8 +333,11 @@ def main():
                     snake.instant_move(Vector2(SNAKE_SIZE, 0))
                 elif event.key == pygame.K_LEFT and snake.direction.x != SNAKE_SIZE:
                     snake.instant_move(Vector2(-SNAKE_SIZE, 0))
+        
 
-        WIN.fill((175, 215, 70))
+        background=get_background()
+
+        WIN.fill((background))
         snake.draw()
         apple.draw()
 
