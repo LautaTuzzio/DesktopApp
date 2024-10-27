@@ -368,17 +368,22 @@ class TetrisGame:
                 """
                 cursor.execute(update_score_query, (self.score, user_id, 3))
 
-
                 achievement_bitmask = 0
+                coin_reward = 0
+
                 if self.score >= 1000:
-                    achievement_bitmask += 1 
+                    achievement_bitmask += 1
+                    coin_reward += 1000  
 
                 if self.score >= 10000:
-                    achievement_bitmask += 10  
+                    achievement_bitmask += 10
+                    coin_reward += 3000 
 
                 if self.score >= 100000:
-                    achievement_bitmask += 100 
-                print(achievement_bitmask)
+                    achievement_bitmask += 100
+                    coin_reward += 10000  
+
+                print(f"Achievement bitmask: {achievement_bitmask}, Coin reward: {coin_reward}")
 
                 if achievement_bitmask > 0:
                     update_achievements_query = """
@@ -387,6 +392,13 @@ class TetrisGame:
                     WHERE id_user = %s AND id_juego = %s AND (logro & %s) = 0
                     """
                     cursor.execute(update_achievements_query, (achievement_bitmask, user_id, 3, achievement_bitmask))
+
+                    update_coins_query = """
+                    UPDATE usuario 
+                    SET monedas = monedas + %s 
+                    WHERE id_user = %s
+                    """
+                    cursor.execute(update_coins_query, (coin_reward, user_id))
 
                 self.db_connection.commit()
 
@@ -397,6 +409,7 @@ class TetrisGame:
                 cursor.close()
         else:
             print("No DB connection found")
+
 
 game = TetrisGame()
 game.run()
