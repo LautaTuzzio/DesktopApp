@@ -244,11 +244,9 @@ class TetrisGame:
         rotated = list(zip(*self.current_piece.shape[::-1]))
         self.current_piece.shape = rotated
 
-        # Push the piece back to the left if it's out of bounds
         while not self.valid_move(self.current_piece, 0, 0):
             self.current_piece.x -= 1
             if self.current_piece.x < 0:
-                # If pushed too far left, revert rotation
                 self.current_piece.shape = original_shape
                 self.current_piece.x = original_x
                 break
