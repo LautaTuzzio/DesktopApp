@@ -315,7 +315,8 @@ def main():
     apple = Apple()
     score = 0
     fps = pygame.time.Clock()
-
+    background=get_background()
+    
     while True:
         fps.tick(500)  # Mantenemos un alto FPS para una mejor respuesta
 
@@ -335,7 +336,7 @@ def main():
                     snake.instant_move(Vector2(-SNAKE_SIZE, 0))
         
 
-        background=get_background()
+        
 
         WIN.fill((background))
         snake.draw()
