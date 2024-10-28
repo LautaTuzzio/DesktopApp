@@ -28,9 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $objects = [
             ['url_img' => 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'nombre' => 'Icon 1', 'precio' => 5000, 'id_juego' => 0, 'comprado' => 0],
-            ['url_img' => 'snakeBG1.png', 'nombre' => 'Snake fondo gris', 'precio' => 1000, 'id_juego' => 1, 'comprado' => 0],
+            ['url_img' => 'snakeBG1.png', 'nombre' => 'Snake fondo gris', 'precio' => 1000, 'id_juego' => 1, 'comprado' => 1],
             ['url_img' => 'snakeBG2.png', 'nombre' => 'Snake fondo rojo', 'precio' => 1000, 'id_juego' => 1, 'comprado' => 0], 
-            ['url_img' => 'snakeBG3.png', 'nombre' => 'Snake fonde verde ', 'precio' => 1000, 'id_juego' => 1, 'comprado' => 0], 
+            ['url_img' => 'snakeBG3.png', 'nombre' => 'Snake fondo verde', 'precio' => 1000, 'id_juego' => 1, 'comprado' => 0], 
         ];
 
         $errorOccurred = false;
