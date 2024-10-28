@@ -15,7 +15,7 @@ ALTO = 480
 
 SNAKE_SIZE = 30
 APPLE_SIZE = 30
-user_id = 49#sys.argv[1]
+user_id = sys.argv[1]
 body = "games\snake\images\snakebody1.jpg"
 Head = "games\snake\images\SnakeHead"
 
