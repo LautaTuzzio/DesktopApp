@@ -91,7 +91,7 @@ $conn->close();
 
     <aside>
         <div class="top">
-            <img id="user-pfp" src="<?php echo $pfp; ?>" height="60px"  alt="logo">
+            <img id="user-pfp" src="<?php echo $pfp; ?>" height="60px" width="60px" alt="logo">
             <div class="text-top">
                 <h3><?php echo htmlspecialchars($name); ?></h3>
             </div>
@@ -121,7 +121,7 @@ $conn->close();
                                 </g>
                             </g>
                         </svg>
-                        <h4>Profile</h4>
+                        <h4>Perfil</h4>
                     </div>
                 </li>
                 <li>
@@ -137,7 +137,7 @@ $conn->close();
                                 </path>
                             </g>
                         </svg>
-                        <h4>Activity</h4>
+                        <h4>Actividad</h4>
                     </div>
                 </li>
                 <li>
@@ -186,7 +186,7 @@ $conn->close();
                                 </g>
                             </g>
                         </svg>
-                        <h4>Library</h4>
+                        <h4>Biblioteca</h4>
                     </div>
                 </li>
                 <li>
@@ -207,18 +207,30 @@ $conn->close();
                                     fill="#e0dddd"></path>
                             </g>
                         </svg>
-                        <h4>Shop</h4>
+                        <h4>Tienda</h4>
                     </div>
                 </li>
             </ul>
         </div>
         <div class="bottom">
-            <h3>Colaboradores</h3>
-            <div class="colaboradores">
-                <img src="https://placehold.co/30" alt="logo">
-                <img src="https://placehold.co/30" alt="logo">
-                <img src="https://placehold.co/30" alt="logo">
-                <img src="https://placehold.co/30" alt="logo">
+        <h3>Colaboradores</h3>
+        <div class="colaboradores">
+                <div class="colaborador-wrapper">
+                    <img src="colab1.png" alt="logo" style="height=30px; width=30px;">
+                    <span class="tooltip">Lautaro Tuzzio</span>
+                </div>
+                <div class="colaborador-wrapper">
+                    <img src="colab2.png" alt="logo" style="height=30px; width=30px;">
+                    <span class="tooltip">Maximo Mayorga</span>
+                </div>
+                <div class="colaborador-wrapper">
+                    <img src="colab3.png" alt="logo" style="height=30px; width=30px;">
+                    <span class="tooltip">Candela Molinari</span>
+                </div>
+                <div class="colaborador-wrapper">
+                    <img src="colab4.png" alt="logo" style="height=30px; width=30px;">
+                    <span class="tooltip">Carlos Insaurralde</span>
+                </div>
             </div>
         </div>
     </aside>
@@ -226,26 +238,28 @@ $conn->close();
 
     <section id="profile" class="content" style="margin-left:200px;">
     <div class="profile-top" onclick="openPopup()">
-        <img id="user-pfp" src="<?php echo $pfp; ?>" height="200px" alt="logo">
+    <div class="image-container">
+    <img id="user-pfp" src="<?php echo $pfp; ?>" alt="logo">
+</div>
         <div class="profile-desc">
             <h1><?php echo htmlspecialchars($name); ?></h1>
-            <h3>Registration date: <?php echo htmlspecialchars($registrationDate); ?></h3>
+            <h3>Fecha de registro<?php echo htmlspecialchars($registrationDate); ?></h3>
         </div>
     </div>
 
     <div class="profile-personal">
-        <h1>Account Info</h1>
+        <h1>Informacion de la cuenta</h1>
         <div class="detail-holder">
             <label for="email">Email</label>
             <input type="text" id="email" value="<?php echo htmlspecialchars($email); ?>" readonly>
 
-            <label for="password">Password</label>
+            <label for="password">Contraseña</label>
             <div class="password-group">
                 <input type="password" id="password" value="<?php echo htmlspecialchars($password); ?>" readonly>
                 <span class="icon eye-icon" onclick="togglePasswordVisibility()">&#128065;</span>
             </div>
-            <form action="user_status_check.php">
-                <button class="rounded-button">Log out</button>
+            <form action="login.php">
+                <button class="rounded-button">Salir</button>
             </form>
         </div>
     </div>
@@ -253,7 +267,7 @@ $conn->close();
     <div id="popup" class="popup">
         <div class="popup-content">
             <span class="close-btn" onclick="closePopup()">&times;</span>
-            <h2 style="text-align: center; color: #e0dddd; margin-bottom: 20px; ">Profile Pictures</h2>
+            <h2 style="text-align: center; color: #e0dddd; margin-bottom: 20px; ">Fotos de perfil</h2>
                 <div class="pfp-holder" style="display: flex; justify-content:center; align-items:center; gap:20px;">
                 <?php
                     $servername = "localhost";
@@ -277,7 +291,7 @@ $conn->close();
                             $imageClass = $isBought ? "bought" : "not-bought";
                             
                             echo '<div class="image-container ' . $imageClass . '">';
-                            echo '<img src="' . htmlspecialchars($row['url_img']) . '" alt="' . htmlspecialchars($row['nombre']) . '" style="max-width:100%;height:auto;margin-bottom:10px;" onclick="updateProfilePicture(\'' . htmlspecialchars($row['url_img']) . '\', ' . ($isBought ? 'true' : 'false') . ')">';
+                            echo '<img src="' . htmlspecialchars($row['url_img']) . '" alt="' . htmlspecialchars($row['nombre']) . '" style="width:200px; height:200px; margin-bottom:10px;" onclick="updateProfilePicture(\'' . htmlspecialchars($row['url_img']) . '\', ' . ($isBought ? 'true' : 'false') . ')">';
                             echo '</div>';
                         }
                     } else {
@@ -329,7 +343,7 @@ $conn->close();
                             </g>
                         </svg>
                     <div class="game-data" style="display: flex; flex-direction: column;">
-                        <h2 style="color:#e0dddd; margin-top:9px; margin-left:-2px;">Last session</h2>
+                        <h2 style="color:#e0dddd; margin-top:9px; margin-left:-2px;">Ultima sesion</h2>
                         <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $last_session; ?></p>
                     </div>
                 </div>
@@ -351,7 +365,7 @@ $conn->close();
                             </g>
                         </svg>
                     <div class="game-data" style="display: flex; flex-direction: column; margin-left:9px; margin-top:3px;">
-                        <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Time registered</h2>
+                        <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Tiempo registrado</h2>
                         <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $time;?></p>
                     </div>
                 </div>
@@ -374,7 +388,7 @@ $conn->close();
                             </g>
                         </svg>
                     <div class="game-data" style="display: flex; flex-direction: column; margin-top:5px;">
-                        <h2>Achievements</h2>
+                        <h2>Logros</h2>
                         <div style="display: flex; margin-top:2px;">
                             <p style="font-size:0.9em; color:#b4afaf; margin-left:2px">
                                 <?php echo $appears; ?>/3
@@ -473,14 +487,17 @@ $conn->close();
                         $precio = $row['precio'];
                         $blackoutClass = $comprado ? 'blackout' : '';
                         $display = $comprado ? 'none' : 'block';
-                        $blackoutText = $comprado ? '<div class="blackout-text">Comprado</div>' : '';
+                        $blackoutText = $comprado ? '<div class="blackout-text">COMPRADO</div>' : '';
  
 
                         echo <<<TIENDA
-                        <div class="game-holder $blackoutClass" style="position: relative;">
-                            <a href="comprar.php?id_objeto=$id_objeto&precio=$precio" style="display:block; text-decoration:none; color:inherit;">
-                                <img src="{$row['url_img']}" alt="logo" style="height:260px; width:200px; border-radius: 10px;">
-                                <p style="margin-top:5px; font-size: 1.3em; display: $display;">{$row['nombre']}</p>
+                        <div class="game-holder" style="position: relative;">
+                            <a href="comprar.php?id_objeto=$id_objeto&precio=$precio" style="display: block; text-decoration: none; color: inherit;">
+                                <div class="image-container" style="position: relative; width: 200px; height: 260px; border-radius: 10px; overflow: hidden;">
+                                    <img src="{$row['url_img']}" alt="logo" style="height: 100%; width: 100%;">
+                                    $blackoutText
+                                </div>
+                                <p style="margin-top: 5px; font-size: 1.3em; display: $display;">{$row['nombre']}</p>
                                 <div class="price-holder" style="display: $display;">
                                     <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -502,9 +519,6 @@ $conn->close();
                                     <span class="number">{$row['precio']}</span>
                                 </div>
                             </a>
-                            <div class="blackout">
-                                $blackoutText
-                            </div>
                         </div>
                         TIENDA;
                     }
@@ -567,7 +581,7 @@ $conn->close();
 
         xhr.send("newProfilePicture=" + encodeURIComponent(imageUrl));
     } else {
-        alert("This picture is not unlocked yet!");
+        alert("Aun no compraste esta imagen");
     }
 }
     </script>

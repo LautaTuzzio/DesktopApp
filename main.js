@@ -15,13 +15,13 @@ function createWindow() {
     }
   })
 
-  mainWindow.loadURL('http://localhost/register.php')
+  mainWindow.loadURL('http://localhost/login.php')
 
   ipcMain.on('navigate-to', (event, page) => {
     mainWindow.loadURL(`http://localhost/${page}`)
   })
 
- Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(null)
 }
 
 app.whenReady().then(() => {

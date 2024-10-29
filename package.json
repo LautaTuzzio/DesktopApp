@@ -1,5 +1,5 @@
 {
-  "name": "desktop_app",
+  "name": "arcade",
   "version": "1.0.0",
   "description": "Your Electron app description",
   "main": "main.js",
@@ -17,12 +17,18 @@
   },
   "build": {
     "appId": "com.yourcompany.my-electron-app",
-    "productName": "desktop_app",
+    "productName": "Arcade",
     "directories": {
       "output": "dist"
     },
     "win": {
       "icon": "build/icon.ico"
-    }
+    },
+    "files": [
+      "build/**/*",
+      "games/**/*",
+      "main.js",
+      "snakeRender.js"
+    ]
   }
 }

@@ -8,7 +8,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Registrate</title>
     <link rel="stylesheet" href="login.css">
 </head>
 
@@ -22,16 +22,16 @@ session_start();
 
     <div class="wrap">
         <div class="title">
-            <h2>Register</h2>
+            <h2>Registrate</h2>
         </div>
         <form id="registerForm" action="register_user.php" method="post">
-            <h2>Username:</h2>
-            <input type="text" id="username" name="username" required placeholder="Username"><br>
+            <h2>Nombre de usuario:</h2>
+            <input type="text" id="username" name="username" required placeholder="Nombre de usuario"><br>
             <h2>Email:</h2>
             <input type="email" id="email" name="email" required placeholder="Email"><br>
-            <h2>Password:</h2>
+            <h2>Contraseña:</h2>
             <div class="password-container">
-                <input type="password" id="password" name="password" required placeholder="Password">
+                <input type="password" id="password" name="password" required placeholder="Contraseña">
                 <span class="icon eye-icon" onclick="togglePasswordVisibility()">
                     <svg id="show-icon" width="30px" height="30px" viewBox="0 0 24 24" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -59,10 +59,10 @@ session_start();
                 </span>
             </div>
             <div class="button">
-                <button type="submit">Register</button>
+                <button type="submit">Registrate</button>
             </div>
         </form>
-        <p>Already have an account? <a href="login.php" id="loginLink">Log in here</a>.</p>
+        <p>¿Ya tienes una cuenta? <a href="login.php" id="loginLink">Ingresa aqui</a>.</p>
     </div>
     <script>
         function togglePasswordVisibility() {

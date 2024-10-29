@@ -103,11 +103,63 @@ ul li {
 
 .bottom h3 {
     text-align: center;
+    transform: translateY(20px);
 }
 
 .colaboradores img {
     border-radius: 100%;
+    height: 30px;
+    width: 30px;
 }
+
+.colaborador-wrapper {
+    position: relative;
+    display: inline-block;
+    height: 60px;
+    display: flex;
+    align-items: flex-end; 
+}
+
+.colaborador-wrapper img {
+    width: 30px;  
+    height: 30px; 
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+
+.tooltip {
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    top: 0; 
+    left: 50%;
+    transform: translateX(-50%); 
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.colaborador-wrapper:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
 
 ul li .option {
     padding-top: 10px;
@@ -145,22 +197,56 @@ ul li .option.active svg path {
     display: block;
 }
 
-.profile-top{
+.profile-top {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 70px;
     height: 40vh;
+    position: relative;
 }
 
-.profile-desc{
+.profile-desc {
     display: flex;
     flex-direction: column;
     margin-left: 20px;
 }
 
-.profile-top img{
+.profile-top .image-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+}
+
+.profile-top img {
     border-radius: 50%;
+    transition: all 0.2s ease-in;
+    width: 100%;
+    height: 100%;
+}
+
+.profile-top .image-container::after {
+    content: "Cambiar imagen";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;  
+    opacity: 0;
+    transition: opacity 0.2s ease-in;
+    pointer-events: none;
+}
+
+/* Efecto hover */
+.profile-top .image-container:hover img {
+    opacity: 0.2;
+}
+
+.profile-top .image-container:hover::after {
+    opacity: 1;
 }
 
 .profile-top h1{
@@ -351,14 +437,22 @@ input[type="text"]{
     transform: translateY(-0.5px);
 }
 
+
+
 .blackout-text {
     position: absolute;
-    top: -50%;
-    transform: translateY(-160px) rotate(-55deg);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9); 
     color: white;
-    font-size: 2.5em;
-    font-weight: bold;
-    z-index: 2; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bolder;
+    border-radius: 9px;
 }
 
 .game-holder {
@@ -420,4 +514,6 @@ input[type="text"]{
 .image-container {
     margin-bottom: 15px;
     text-align: center;
+    position: relative;
+    
 }

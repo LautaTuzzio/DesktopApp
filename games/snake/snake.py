@@ -268,7 +268,9 @@ def get_skins():
         cursor.execute(query_skins, (user_id,))
         result = cursor.fetchall()
         skins = [skin[0] for skin in result]
+        skins.append('Snake fondo gris')
         return skins
+
         
         
 
@@ -301,6 +303,7 @@ def mostrar_menu():
 
 def mostrar_skins():
     skins = get_skins()
+    print(skins)
     seleccion = 0
     fuente = pygame.font.SysFont("Russo One", 40)
 

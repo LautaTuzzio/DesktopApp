@@ -5,14 +5,10 @@ document.getElementById('playGame').addEventListener('click', function(e) {
 
     exec(`python ./games/snake/snake.py ${userId}`, (err, stdout, stderr) => {
         if (err) {
-            console.error(`Error: ${err.message}`)
-            console.error(`Error Code: ${err.code}`)
-            console.error(`Signal Received: ${err.signal}`)
+            console.error(`Error: ${err}`)
             return
         }
         console.log(`Output: ${stdout}`)
-        if (stderr) {
-            console.error(`Error Output: ${stderr}`)
-        }
+        console.error(`Error Output: ${stderr}`)
     })
 })

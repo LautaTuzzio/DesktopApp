@@ -21,13 +21,13 @@ session_start();
 
 
     <div class="wrap">
-        <h2 class="title">Log in</h2>
+        <h2 class="title">Ingresar</h2>
         <form id="loginForm" action="login_check.php" method="POST">
-    <h2>Email or username</h2>
-    <input type="text" id="username" name="username" required placeholder="Insert your email or username"><br>
-    <h2>Password</h2>
+    <h2>Nombre de usuario</h2>
+    <input type="text" id="username" name="username" required placeholder="Email o Nombre de Usuario"><br>
+    <h2>Contraseña</h2>
     <div class="password-container">
-        <input type="password" id="password" name="password" required placeholder="Password">
+        <input type="password" id="password" name="password" required placeholder="Contraseña">
         <span class="icon eye-icon" onclick="togglePasswordVisibility()">
             <svg id="show-icon" width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -47,11 +47,11 @@ session_start();
         </span>
     </div>
     <div class="button">
-        <button type="submit">Log in</button>
+        <button type="submit">Ingresar</button>
     </div>
 </form>
 
-        <p>Don't have an account? <a href="register.php" id="registerLink">Register here</a>.</p>
+        <p>¿No tienes una cuenta? <a href="register.php" id="registerLink">Registrate</a>.</p>
     </div>
     <script>
         function togglePasswordVisibility() {
