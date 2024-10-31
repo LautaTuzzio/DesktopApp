@@ -92,7 +92,7 @@ $result_achievements = $conn->query($sql_achievements);
                         $rank++;
                     }
                 } else {
-                    echo "<li>No data available</li>";
+                    echo "<li>No hay datos <br>¡Se el primero!</li>";
                 }
                 ?>
             </ul>
