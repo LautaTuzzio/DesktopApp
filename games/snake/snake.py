@@ -278,9 +278,21 @@ def mostrar_menu():
     opciones = ["Iniciar Juego"]
     seleccion = 0
     fuente = pygame.font.SysFont("Russo One", 40)
+    fuente_instrucciones = pygame.font.SysFont("Russo One", 20)
 
     while True:
         WIN.fill((0, 0, 0))
+        
+        # Title
+        titulo = fuente.render("¡SNAKE!", True, (0, 255, 0))
+        WIN.blit(titulo, (ANCHO // 2 - titulo.get_width() // 2, ALTO // 4))
+
+        # Instructions
+        instruccion1 = fuente_instrucciones.render("Presiona enter para seleccionar", True, (200, 200, 200))
+        instruccion2 = fuente_instrucciones.render("Utiliza las flechas para moverte", True, (200, 200, 200))
+        WIN.blit(instruccion1, (ANCHO // 2 - instruccion1.get_width() // 2, ALTO * 3 // 4))
+        WIN.blit(instruccion2, (ANCHO // 2 - instruccion2.get_width() // 2, ALTO * 3 // 4 + 30))
+
         for i, opcion in enumerate(opciones):
             color = (255, 255, 255) if i == seleccion else (100, 100, 100)
             texto = fuente.render(opcion, True, color)
@@ -303,12 +315,23 @@ def mostrar_menu():
 
 def mostrar_skins():
     skins = get_skins()
-    print(skins)
     seleccion = 0
     fuente = pygame.font.SysFont("Russo One", 40)
+    fuente_instrucciones = pygame.font.SysFont("Russo One", 20)
 
     while True:
         WIN.fill((0, 0, 0))
+        
+        # Title
+        titulo = fuente.render("¡SNAKE!", True, (0, 255, 0))
+        WIN.blit(titulo, (ANCHO // 2 - titulo.get_width() // 2, ALTO // 4))
+
+        # Instructions
+        instruccion1 = fuente_instrucciones.render("Presiona enter para seleccionar", True, (200, 200, 200))
+        instruccion2 = fuente_instrucciones.render("Utiliza las flechas para moverte", True, (200, 200, 200))
+        WIN.blit(instruccion1, (ANCHO // 2 - instruccion1.get_width() // 2, ALTO * 3 // 4))
+        WIN.blit(instruccion2, (ANCHO // 2 - instruccion2.get_width() // 2, ALTO * 3 // 4 + 30))
+
         for i, skin in enumerate(skins):
             color = (255, 255, 255) if i == seleccion else (100, 100, 100)
             texto = fuente.render(skin[5:].upper(), True, color)

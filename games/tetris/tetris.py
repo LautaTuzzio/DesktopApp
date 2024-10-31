@@ -137,7 +137,7 @@ class TetrisGame:
 
         padding = 20
 
-        next_text = self.font.render("Next:", True, TEXT_COLOR)
+        next_text = self.font.render("Siguiente:", True, TEXT_COLOR)
         self.screen.blit(next_text, (GRID_WIDTH * BLOCK_SIZE + 10, 4 * BLOCK_SIZE + padding))
 
         start_x = GRID_WIDTH + 1
@@ -150,12 +150,12 @@ class TetrisGame:
                                     ((start_x + x) * BLOCK_SIZE,
                                     (start_y + y) * BLOCK_SIZE))
 
-        score_text = self.font.render(f"Score: {self.score}", True, TEXT_COLOR)
+        score_text = self.font.render(f"Puntos: {self.score}", True, TEXT_COLOR)
         self.screen.blit(score_text, (GRID_WIDTH * BLOCK_SIZE + 10, 8 * BLOCK_SIZE + 2 * padding))
 
         elapsed_time = int(time.time() - self.start_time)
         minutes, seconds = divmod(elapsed_time, 60)
-        time_text = self.font.render(f"Time: {minutes:02d}:{seconds:02d}", True, TEXT_COLOR)
+        time_text = self.font.render(f"Tiempo: {minutes:02d}:{seconds:02d}", True, TEXT_COLOR)
         self.screen.blit(time_text, (GRID_WIDTH * BLOCK_SIZE + 10, 10 * BLOCK_SIZE + 3 * padding))
 
         padding_x = 10  
@@ -163,33 +163,33 @@ class TetrisGame:
         base_y = SCREEN_HEIGHT - 150
 
         self.screen.blit(self.down_arrow_img, (GRID_WIDTH * BLOCK_SIZE + padding_x, base_y))
-        self.screen.blit(self.font.render("Go down", True, TEXT_COLOR), (GRID_WIDTH * BLOCK_SIZE + 2 * padding_x + BLOCK_SIZE, base_y))
+        self.screen.blit(self.font.render("Abajo", True, TEXT_COLOR), (GRID_WIDTH * BLOCK_SIZE + 2 * padding_x + BLOCK_SIZE, base_y))
 
         self.screen.blit(self.up_arrow_img, (GRID_WIDTH * BLOCK_SIZE + padding_x, base_y + BLOCK_SIZE + padding_y))
-        self.screen.blit(self.font.render("Rotate", True, TEXT_COLOR), (GRID_WIDTH * BLOCK_SIZE + 2 * padding_x + BLOCK_SIZE, base_y + BLOCK_SIZE + padding_y))
+        self.screen.blit(self.font.render("Rotar", True, TEXT_COLOR), (GRID_WIDTH * BLOCK_SIZE + 2 * padding_x + BLOCK_SIZE, base_y + BLOCK_SIZE + padding_y))
 
         self.screen.blit(self.right_arrow_img, (GRID_WIDTH * BLOCK_SIZE + padding_x, base_y + 2 * (BLOCK_SIZE + padding_y)))
-        self.screen.blit(self.font.render("Go right", True, TEXT_COLOR), (GRID_WIDTH * BLOCK_SIZE + 2 * padding_x + BLOCK_SIZE, base_y + 2 * (BLOCK_SIZE + padding_y)))
+        self.screen.blit(self.font.render("Derecha", True, TEXT_COLOR), (GRID_WIDTH * BLOCK_SIZE + 2 * padding_x + BLOCK_SIZE, base_y + 2 * (BLOCK_SIZE + padding_y)))
 
         self.screen.blit(self.left_arrow_img, (GRID_WIDTH * BLOCK_SIZE + padding_x, base_y + 3 * (BLOCK_SIZE + padding_y)))
-        self.screen.blit(self.font.render("Go left", True, TEXT_COLOR), (GRID_WIDTH * BLOCK_SIZE + 2 * padding_x + BLOCK_SIZE, base_y + 3 * (BLOCK_SIZE + padding_y)))
+        self.screen.blit(self.font.render("Izquierda", True, TEXT_COLOR), (GRID_WIDTH * BLOCK_SIZE + 2 * padding_x + BLOCK_SIZE, base_y + 3 * (BLOCK_SIZE + padding_y)))
 
     def show_game_over_message(self):
         self.screen.fill(BLACK)
 
-        game_over_text = self.font.render("You Lost!", True, RED)
+        game_over_text = self.font.render("¡Perdiste!", True, RED)
         text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 30))
         self.screen.blit(game_over_text, text_rect)
 
-        score_text = self.font.render(f"Score: {self.score}", True, WHITE)
+        score_text = self.font.render(f"Puntos: {self.score}", True, WHITE)
         score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 10))
         self.screen.blit(score_text, score_rect)
 
-        play_again_text = self.font.render("Play Again", True, WHITE)
+        play_again_text = self.font.render("Jugar de nuevo", True, WHITE)
         play_again_rect = play_again_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
         self.screen.blit(play_again_text, play_again_rect)
 
-        quit_text = self.font.render("Quit", True, WHITE)
+        quit_text = self.font.render("Salir", True, WHITE)
         quit_rect = quit_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 90))
         self.screen.blit(quit_text, quit_rect)
 
