@@ -171,23 +171,33 @@ class Game:
 
     def draw_menu(self):
         self.screen.fill(self.BLACK)
+        
+        # Título principal
         title = self.font.render("PONG", True, self.WHITE)
         self.screen.blit(title, (self.WIDTH // 2 - title.get_width() // 2, 100))
+        
+        instruction_font = pygame.font.Font(None, 24)  
+        gray_color = (200, 200, 200)
+        
+        instruction1 = instruction_font.render("Presiona 1 o 2 para seleccionar una opcion", True, gray_color)
+        self.screen.blit(instruction1, (self.WIDTH // 2 - instruction1.get_width() // 2, 180))
 
-        pvp = self.menu_font.render("1. Player vs Player", True, self.WHITE)
+        # Opciones de menú
+        pvp = self.menu_font.render("1. Jugador vs Jugador", True, self.WHITE)
         self.screen.blit(pvp, (self.WIDTH // 2 - pvp.get_width() // 2, 300))
 
-        pva = self.menu_font.render("2. Player vs AI", True, self.WHITE)
+        pva = self.menu_font.render("2. Jugador vs IA", True, self.WHITE)
         self.screen.blit(pva, (self.WIDTH // 2 - pva.get_width() // 2, 350))
 
         pygame.display.flip()
 
+
     def draw_game_over(self):
         self.screen.fill(self.BLACK)
-        winner_text = "Left Player Wins!" if self.left_score > self.right_score else "Right Player Wins!"
+        winner_text = "Jugador Izquierdo Gana!" if self.left_score > self.right_score else "Jugador Derecho Gana!"
         winner_surface = self.font.render(winner_text, True, self.WHITE)
         self.screen.blit(winner_surface, (self.WIDTH // 2 - winner_surface.get_width() // 2, self.HEIGHT // 2 - winner_surface.get_height() // 2))
-        play_again = self.menu_font.render("Press SPACE to play again", True, self.WHITE)
+        play_again = self.menu_font.render("Presiona espacio para jugar de nuevo", True, self.WHITE)
         self.screen.blit(play_again, (self.WIDTH // 2 - play_again.get_width() // 2, self.HEIGHT // 2 + 100))
 
         pygame.display.flip()
@@ -266,21 +276,20 @@ class Game:
 
         if self.game_mode == 'PLAYER_VS_PLAYER':
             controls = [
-                "Player 1 Controls:",
-                "W - Move Up",
-                "S - Move Down",
-                "",
-                "Player 2 Controls:",
-                "Up Arrow - Move Up",
-                "Down Arrow - Move Down"
+                "Controles del Jugador 1:",
+                "W - Mover arriba",
+                "S - Mover abajo",
+                " ",
+                "Controles del Jugador 2:",
+                "Flecha arriba - Mover arriba",
+                "Flecha abajo - Mover abajo"
             ]
         else:
             controls = [
-                "Player Controls:",
-                "W - Move Up",
-                "S - Move Down",
-                "",
-                "AI will control the right paddle"
+                "Controles del Jugador:",
+                "W - Mover hacia arriba",
+                "S - Mover hacia abajo",
+                "La IA controlara la paleta derecha"
             ]
 
         y_offset = 250
@@ -289,7 +298,7 @@ class Game:
             self.screen.blit(control_text, (self.WIDTH // 2 - control_text.get_width() // 2, y_offset))
             y_offset += 30
 
-        start_text = self.menu_font.render("Press ENTER to start", True, self.WHITE)
+        start_text = self.menu_font.render("Presiona ENTER para comenzar", True, self.WHITE)
         self.screen.blit(start_text, (self.WIDTH // 2 - start_text.get_width() // 2, 500))
 
         pygame.display.flip()
