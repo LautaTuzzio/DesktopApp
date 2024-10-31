@@ -82,7 +82,7 @@ $result_achievements = $conn->query($sql_achievements);
                 <div class="line"></div>
             </div>
             <ul>
-                <li><h3>Name</h3><h3>Score</h3></li>
+                <li><h3>Nombre</h3><h3>Puntaje</h3></li>
                 <?php
                 if ($result_leaderboard->num_rows > 0) {
                     $rank = 1;
@@ -104,7 +104,7 @@ $result_achievements = $conn->query($sql_achievements);
         if ($result_achievements->num_rows > 0) {
             $i = 0;
             while ($achievement = $result_achievements->fetch_assoc()) {
-                $status = (isset($user_achievements[$i]) && $user_achievements[$i] == '1') ? 'Completed' : 'Incomplete';
+                $status = (isset($user_achievements[$i]) && $user_achievements[$i] == '1') ? 'Completado' : 'Incompleto';
                 echo "
                 <div class=\"archivement\">
                     <img src=\"{$achievement['img']}\" alt=\"Achievement Image\">
@@ -123,13 +123,7 @@ $result_achievements = $conn->query($sql_achievements);
         <div class="a-holder">
             <a class="underline-btn" href="index.php">
                 <h3 class="animated-text">
-                    <span class="static-text">Go</span>
-                    <ul>
-                        <li>b</li>
-                        <li>a</li>
-                        <li>c</li>
-                        <li>k</li>
-                    </ul>
+                    <span class="static-text">Volver</span>
                 </h3>
             </a>
         </div>
