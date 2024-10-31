@@ -111,7 +111,7 @@ $result_achievements = $conn->query($sql_achievements);
                     <div class=\"info\">
                         <h2>{$achievement['nombre']}</h2>
                         <h4>{$achievement['reto']}</h4>
-                        <p>Status: $status</p>
+                        <p>Estado: $status</p>
                     </div>
                 </div>";
                 $i++;
