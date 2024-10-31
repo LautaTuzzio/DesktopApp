@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 22-10-2024 a las 17:38:07
+-- Tiempo de generación: 31-10-2024 a las 13:46:22
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -106,18 +106,18 @@ CREATE TABLE `logros` (
 --
 
 INSERT INTO `logros` (`id_logro`, `nombre`, `reto`, `id_juego`, `recompensa`, `img`) VALUES
-(4, 'We\'re just starting', 'Eat your first apple', 1, 1, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
-(5, 'Getting better', 'Eat 20 apples', 1, 10, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
-(6, 'Winner!', 'Eat all of the apples', 1, 100, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
-(7, 'Just starting', 'Win 1 game against the AI', 2, 3000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
-(8, 'Point!', 'Win 5 game against the AI', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
-(9, 'Winner', 'Win 20 game against the AI', 2, 10000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
-(10, 'Getting started', 'Reach 1000 points', 3, 6000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
-(11, 'Tetris master', 'Reach 10000 points', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
-(12, 'Tetris god', 'Reach 100000 points', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
-(13, 'Discovering space', 'Complete level 1', 4, 1000, 'games/galaga/logro.png'),
-(14, 'Alien destroyer', 'Complete level 10', 4, 3000, 'games/galaga/logro.png'),
-(15, 'King of the galaxy', 'Complete level 20', 4, 10000, 'games/galaga/logro.png');
+(4, 'Empezando', 'Come tu primera manzana', 1, 1, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
+(5, 'Mejorando', 'Come 20 manzanas', 1, 10, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
+(6, '¡Ganador!', 'Gana en el juego \"Snake\"', 1, 100, 'https://www.megavoxels.com/wp-content/uploads/2024/07/Pixel-Art-Apple-6.webp'),
+(7, 'Primera partida', 'Gana una partida contra la IA', 2, 3000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
+(8, 'Federado', 'Gana 5 partidas contra la IA', 2, 5000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
+(9, 'Profesional', 'Gana 20 partidas contra la IA', 2, 10000, 'https://assets-prd.ignimgs.com/2022/04/16/pong-1650079489009.jpg'),
+(10, 'Primeros puntos', 'Consigue 1000 puntos', 3, 6000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
+(11, 'Maestro', 'Consigue 10000 puntos', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
+(12, 'Dios', 'Consigue 100000 puntos', 3, 5000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfNzo53IUelga6CbEXxQAiwaB7nkF1O1JkxA&s'),
+(13, 'Va queriendo', 'Completa el nivel 1', 4, 1000, 'games/galaga/logro.png'),
+(14, 'Destructor', 'Completa el nivel 10', 4, 3000, 'games/galaga/logro.png'),
+(15, 'Rey de la galaxia', 'Completa el nivel 20', 4, 10000, 'games/galaga/logro.png');
 
 -- --------------------------------------------------------
 
@@ -147,7 +147,13 @@ INSERT INTO `objetos` (`id_objeto`, `url_img`, `nombre`, `precio`, `id_juego`, `
 (5, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 34, 0),
 (6, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 35, 0),
 (7, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 36, 0),
-(8, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 37, 0);
+(8, 'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg', 'Icon 1', 5000, 0, 37, 0),
+(9, 'snakePFP.png', 'Icon', 2000, 0, 38, 0),
+(10, 'tetrisPFP.png', 'Icon', 2000, 0, 38, 0),
+(11, 'pongPFP.png', 'Icon', 2000, 0, 38, 0),
+(12, 'galagaPFP.png', 'Icon', 2000, 0, 38, 0),
+(13, 'snakeBG2.png', 'Snake fondo rojo', 500, 1, 38, 0),
+(14, 'snakeBG3.png', 'Snake fondo verde', 500, 1, 38, 0);
 
 -- --------------------------------------------------------
 
@@ -199,7 +205,8 @@ INSERT INTO `usuario` (`id_user`, `name_user`, `mail`, `password`, `registration
 (34, 'tetrtest', 'tetr@gmail.com', '123', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
 (35, 'pato', 'pato22@gmail.com', 'cuack', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
 (36, 'dino', 'dino23@gmail.com', 'rawr', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
-(37, 'gato', 'gato@gmail.com', 'miau', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png');
+(37, 'gato', 'gato@gmail.com', 'miau', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
+(38, 'wasd', 'wasd@gmail.com', '123', '2024-10-31', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png');
 
 --
 -- Índices para tablas volcadas
@@ -259,13 +266,13 @@ ALTER TABLE `logros`
 -- AUTO_INCREMENT de la tabla `objetos`
 --
 ALTER TABLE `objetos`
-  MODIFY `id_objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- Restricciones para tablas volcadas
