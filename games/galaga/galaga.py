@@ -104,7 +104,7 @@ class Player(pygame.sprite.Sprite):
             
             if connection.is_connected():
                 cursor = connection.cursor()
-                user_id = sys.argv[1]
+                user_id = 1 #sys.argv[1]
 
                 # Calcular tiempo de juego
                 current_time = time.time()
@@ -473,9 +473,9 @@ def main_game():
         all_sprites.draw(screen)
 
         # Mostrar información del juego
-        score_text = font.render(f"Score: {score}", True, WHITE)
-        level_text = font.render(f"Level: {level}", True, WHITE)
-        controls_text = small_font.render("<- -> to move, Space to shoot", True, GRAY)
+        score_text = font.render(f"Puntaje: {score}", True, WHITE)
+        level_text = font.render(f"Nivel: {level}", True, WHITE)
+        controls_text = small_font.render("<- -> Para moverse, Espacio para disparar", True, GRAY)
         
         screen.blit(score_text, (10, 10))
         screen.blit(level_text, (width // 2 - 40, 10))
@@ -487,8 +487,8 @@ def main_game():
 
         if game_over:
             game_over_text = font.render("GAME OVER", True, RED)
-            final_score_text = font.render(f"Final Score: {score}", True, WHITE)
-            restart_text = font.render("Press R to Restart", True, WHITE)
+            final_score_text = font.render(f"Puntuacion Final: {score}", True, WHITE)
+            restart_text = font.render("Presiona R para reiniciar", True, WHITE)
             
             screen.blit(game_over_text, (width // 2 - 70, height // 2 - 50))
             screen.blit(final_score_text, (width // 2 - 70, height // 2))
