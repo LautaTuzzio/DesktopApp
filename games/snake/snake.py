@@ -18,6 +18,8 @@ APPLE_SIZE = 30
 user_id = sys.argv[1]
 body = "games\snake\images\snakebody1.jpg"
 Head = "games\snake\images\SnakeHead"
+pygame.display.set_caption("Snake")
+
 
 SNAKE_BODY = pygame.transform.scale(pygame.image.load(os.path.join(f"{body}")), (SNAKE_SIZE, SNAKE_SIZE))
 APPLE = pygame.transform.scale(pygame.image.load(os.path.join(r"games\snake\images\manzana.png")), (APPLE_SIZE, APPLE_SIZE))
