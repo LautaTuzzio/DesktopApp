@@ -27,11 +27,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['logStatus']= "True";
             header("Location: index.php");
         } else {
-            header("Location: register.php");
+            header("Location: login.php");
             $_SESSION['logStatus']= "False";
         }
     } else {
-        header("Location: register.php");
+        header("Location: login.php");
     }
 }
 
