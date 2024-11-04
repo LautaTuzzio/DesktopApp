@@ -104,7 +104,7 @@ class Player(pygame.sprite.Sprite):
             
             if connection.is_connected():
                 cursor = connection.cursor()
-                user_id = 1 #sys.argv[1]
+                user_id = sys.argv[1]
 
                 # Calcular tiempo de juego
                 current_time = time.time()
