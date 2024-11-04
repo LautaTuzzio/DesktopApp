@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-10-2024 a las 13:46:22
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Tiempo de generación: 04-11-2024 a las 20:54:50
+-- Versión del servidor: 10.4.24-MariaDB
+-- Versión de PHP: 8.1.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -29,7 +29,7 @@ CREATE TABLE `actividad` (
   `tiempo` time NOT NULL,
   `ult_ingreso` date NOT NULL,
   `puntaje` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `actividad`
@@ -37,6 +37,7 @@ CREATE TABLE `actividad` (
 
 INSERT INTO `actividad` (`id_user`, `id_juego`, `logro`, `estilos`, `tiempo`, `ult_ingreso`, `puntaje`) VALUES
 (1, 1, 100, 1, '10:15:27', '2024-08-19', 4),
+(1, 4, 0, 0, '00:00:38', '2024-11-04', 90),
 (2, 1, 101, 2, '11:20:30', '2024-08-17', 7),
 (3, 1, 110, 1, '12:30:40', '2024-08-17', 20),
 (4, 1, 11, 3, '13:45:50', '2024-08-17', 8),
@@ -58,9 +59,10 @@ INSERT INTO `actividad` (`id_user`, `id_juego`, `logro`, `estilos`, `tiempo`, `u
 (32, 1, 1, 0, '00:00:40', '2024-09-02', 14),
 (33, 2, 0, 0, '00:00:40', '2024-09-09', 2),
 (34, 3, 111, 0, '00:00:58', '2024-09-09', 100),
-(35, 2, 11, 0, '00:00:00', '2024-09-09', 5),
 (36, 2, 0, 0, '00:00:39', '2024-09-09', 2),
-(37, 2, 1, 0, '00:00:15', '2024-09-09', 1);
+(37, 2, 1, 0, '00:00:15', '2024-09-09', 1),
+(39, 1, 1, 0, '00:00:31', '2024-11-04', 1),
+(39, 4, 11, 0, '00:12:26', '2024-11-04', 22050);
 
 -- --------------------------------------------------------
 
@@ -73,7 +75,7 @@ CREATE TABLE `juegos` (
   `nombre` varchar(33) NOT NULL,
   `img_juego` varchar(200) NOT NULL,
   `url` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `juegos`
@@ -99,7 +101,7 @@ CREATE TABLE `logros` (
   `id_juego` int(11) NOT NULL,
   `recompensa` int(11) NOT NULL,
   `img` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `logros`
@@ -133,7 +135,7 @@ CREATE TABLE `objetos` (
   `id_juego` int(11) NOT NULL,
   `userID` int(11) NOT NULL,
   `comprado` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `objetos`
@@ -153,7 +155,13 @@ INSERT INTO `objetos` (`id_objeto`, `url_img`, `nombre`, `precio`, `id_juego`, `
 (11, 'pongPFP.png', 'Icon', 2000, 0, 38, 0),
 (12, 'galagaPFP.png', 'Icon', 2000, 0, 38, 0),
 (13, 'snakeBG2.png', 'Snake fondo rojo', 500, 1, 38, 0),
-(14, 'snakeBG3.png', 'Snake fondo verde', 500, 1, 38, 0);
+(14, 'snakeBG3.png', 'Snake fondo verde', 500, 1, 38, 0),
+(15, 'snakePFP.png', 'Icon', 2000, 0, 39, 0),
+(16, 'tetrisPFP.png', 'Icon', 2000, 0, 39, 0),
+(17, 'pongPFP.png', 'Icon', 2000, 0, 39, 0),
+(18, 'galagaPFP.png', 'Icon', 2000, 0, 39, 0),
+(19, 'snakeBG2.png', 'Snake fondo rojo', 500, 1, 39, 0),
+(20, 'snakeBG3.png', 'Snake fondo verde', 500, 1, 39, 0);
 
 -- --------------------------------------------------------
 
@@ -169,7 +177,7 @@ CREATE TABLE `usuario` (
   `registration_date` date NOT NULL,
   `monedas` int(11) DEFAULT NULL,
   `current_profile_picture` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `usuario`
@@ -203,10 +211,10 @@ INSERT INTO `usuario` (`id_user`, `name_user`, `mail`, `password`, `registration
 (32, 'nufdgnudsg', 'nufdgiusg@gmail.com', '1234', '2024-09-02', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
 (33, 'asfdhu', 'ahufdhu@gmail.com', 'huadfhu', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
 (34, 'tetrtest', 'tetr@gmail.com', '123', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
-(35, 'pato', 'pato22@gmail.com', 'cuack', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
 (36, 'dino', 'dino23@gmail.com', 'rawr', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
 (37, 'gato', 'gato@gmail.com', 'miau', '2024-09-09', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
-(38, 'wasd', 'wasd@gmail.com', '123', '2024-10-31', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png');
+(38, 'wasd', 'wasd@gmail.com', '123', '2024-10-31', 0, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png'),
+(39, 'pato ', 'pato22@gmail.com', 'cuack', '2024-11-04', 8000, 'https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png');
 
 --
 -- Índices para tablas volcadas
@@ -266,13 +274,13 @@ ALTER TABLE `logros`
 -- AUTO_INCREMENT de la tabla `objetos`
 --
 ALTER TABLE `objetos`
-  MODIFY `id_objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- Restricciones para tablas volcadas
