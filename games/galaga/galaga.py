@@ -193,7 +193,7 @@ class Player(pygame.sprite.Sprite):
                     monedas += 1000
                 elif level >= 10 and logro_num < 11:
                     cursor.execute("UPDATE actividad SET logro = '011' WHERE id_user = %s AND id_juego = 4", (user_id,))
-                    monedas += 1000
+                    monedas += 3000
                 elif level >= 20 and logro_num < 111:
                     cursor.execute("UPDATE actividad SET logro = '111' WHERE id_user = %s AND id_juego = 4", (user_id,))
                     monedas += 10000
