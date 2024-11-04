@@ -193,7 +193,7 @@ class Snake:
         text_die = DieFont.render("Game Over", True, (255, 255, 255))
         WIN.blit(text_die, (290, 170))
             
-        text_die_restart = restartFont.render("Space to restart", True, (255, 255, 255))
+        text_die_restart = restartFont.render("Toca espacio para reiniciar", True, (255, 255, 255))
         WIN.blit(text_die_restart, (310, 210))
 
         pygame.display.update()
@@ -213,7 +213,7 @@ class Snake:
     def winscreen(self):
         WIN.fill((255, 255, 255))
         font = pygame.font.SysFont('Calibri', 40)
-        text = font.render('You Win!', True, (0, 255, 0))
+        text = font.render('¡GANASTE!', True, (0, 255, 0))
         WIN.blit(text, (320, 240))
         pygame.display.update()
         time.sleep(2)
@@ -410,7 +410,7 @@ def main():
             score = 0
             snake.pause()
 
-        text = SCORE_TEXT.render("Score: {}".format(score), 1, (255, 255, 255))
+        text = SCORE_TEXT.render("Puntaje: {}".format(score), 1, (255, 255, 255))
         WIN.blit(text, (ANCHO - text.get_width() - 20, 20))
 
         pygame.display.update()
