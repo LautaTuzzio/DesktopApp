@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+header("refresh: 10;");
 $servername = "localhost";
 $username = "root";
 $password = "";
