@@ -171,10 +171,20 @@ ul li .option:hover {
     color: var(--green);
 }
 
-ul li .option:hover svg path,
-ul li .option:hover h4 {
+ul li:not(:last-child) .option:hover svg path,
+ul li:not(:last-child) .option:hover h4 {
     fill: var(--green);
     color: var(--green);
+}
+
+ul li:last-child .option:hover svg path,
+ul li:last-child .option:hover h4 {
+    fill: #7e0f0f;
+    color: #7e0f0f;
+}
+
+ul li a{
+    text-decoration: none;
 }
 
 ul li .option.active h4,
@@ -182,6 +192,7 @@ ul li .option.active svg path {
     color: var(--light-green) !important;
     fill: var(--light-green) !important;
 }
+
 
 .option svg, 
 .option h4,

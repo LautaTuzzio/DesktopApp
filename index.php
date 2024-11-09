@@ -23,12 +23,12 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
-    $id =  $row['id_user'];
+    $id = $row['id_user'];
     $_SESSION['user_id'] = $id;
     $name = $row['name_user'];
     $email = $row['mail'];
     $password = $row['password'];
-    $registrationDate = date('m/d/y', strtotime($row['registration_date'])); 
+    $registrationDate = date('m/d/y', strtotime($row['registration_date']));
     $coins = $row['monedas'];
     $pfp = $row['current_profile_picture'];
 } else {
@@ -58,7 +58,7 @@ if ($result->num_rows > 0) {
 $sql = "SELECT * FROM `juegos` WHERE id_juego >= 1;";
 $result = $conn->query($sql);
 
-$games = []; 
+$games = [];
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
@@ -210,11 +210,50 @@ $conn->close();
                         <h4>Tienda</h4>
                     </div>
                 </li>
+
+                <li>
+                    <a href="login.php" id="logout-link" onclick="return confirmLogout(event)">
+                        <div class="option" onclick="showSection('shop', this)">
+                            <svg fill="#e0dddd" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                xmlns:xlink="http://www.w3.org/1999/xlink" width="25px" height="25px"
+                                viewBox="0 0 70 70" enable-background="new 0 0 70 70" xml:space="preserve">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <g>
+                                        <path
+                                            d="M62.666,32.316L57.758,21.53c-0.457-1.007-1.646-1.449-2.648-0.992c-1.006,0.457-1.45,1.644-0.992,2.648l3.365,7.397 H44.481c-1.104,0-2,0.896-2,2s0.896,2,2,2h13.69l-4.055,8.912c-0.458,1.004-0.014,2.191,0.992,2.648 c0.269,0.121,0.55,0.18,0.827,0.18c0.76,0,1.486-0.436,1.821-1.172l4.939-10.855c0.104-0.196,0.172-0.407,0.206-0.625 C62.988,33.207,62.901,32.726,62.666,32.316z">
+                                        </path>
+                                        <path
+                                            d="M51.583,47.577c-1.104,0-2,0.895-2,2v8.006h-11V15.269c0-1.722-0.81-3.25-2.445-3.795L24.536,7.583h25.047v9.994 c0,1.104,0.896,2,2,2s2-0.896,2-2v-12c0-1.104,0.003-1.994-1.102-1.994H12.609l-0.325-0.109c-0.413-0.138-0.694-0.205-1.119-0.205 c-0.829,0-1.94,0.258-2.63,0.755C7.492,4.776,6.583,5.983,6.583,7.269v47.572c0,1.721,1.393,3.25,3.026,3.795l24.146,8 c0.413,0.137,0.913,0.205,1.337,0.205c0.83,0,1.395-0.258,2.084-0.756c1.043-0.752,1.407-1.959,1.407-3.244v-1.258h13.898 c1.104,0,1.102-0.902,1.102-2.006v-10C53.583,48.472,52.688,47.577,51.583,47.577z M34.583,62.841l-24-8V7.583V7.504L10.8,7.345 l23.783,7.924V62.841z">
+                                        </path>
+                                        <path
+                                            d="M30.583,47.577c0.553,0,1-0.447,1-1v-6c0-0.553-0.447-1-1-1s-1,0.447-1,1v6C29.583,47.13,30.03,47.577,30.583,47.577z">
+                                        </path>
+                                    </g>
+                                </g>
+                            </svg>
+                            <h4>Salir</h4>
+                        </div>
+                    </a>
+                    <script>
+                        function confirmLogout(event) {
+                            event.preventDefault();
+
+                            if (confirm('¿Estas seguro que quieres salir?')) {
+                                window.location.replace('login.php');
+                            }else{
+                                window.location.href = 'index.php';
+                            }
+
+                        }
+                    </script>
+                </li>
             </ul>
         </div>
         <div class="bottom">
-        <h3>Colaboradores</h3>
-        <div class="colaboradores">
+            <h3>Colaboradores</h3>
+            <div class="colaboradores">
                 <div class="colaborador-wrapper">
                     <img src="colab1.png" alt="logo" style="height=30px; width=30px;">
                     <span class="tooltip">Lautaro Tuzzio</span>
@@ -236,201 +275,202 @@ $conn->close();
     </aside>
     <main>
 
-    <section id="profile" class="content" style="margin-left:200px;">
-    <div class="profile-top" onclick="openPopup()">
-    <div class="image-container">
-    <img id="user-pfp" src="<?php echo $pfp; ?>" alt="logo">
-</div>
-        <div class="profile-desc">
-            <h1><?php echo htmlspecialchars($name); ?></h1>
-            <h3>Fecha de registro<?php echo htmlspecialchars($registrationDate); ?></h3>
-        </div>
-    </div>
-
-    <div class="profile-personal">
-        <h1>Informacion de la cuenta</h1>
-        <div class="detail-holder">
-            <label for="email">Email</label>
-            <input type="text" id="email" value="<?php echo htmlspecialchars($email); ?>" readonly>
-
-            <label for="password">Contraseña</label>
-            <div class="password-group">
-                <input type="password" id="password" value="<?php echo htmlspecialchars($password); ?>" readonly>
-                <span class="icon eye-icon" onclick="togglePasswordVisibility()">&#128065;</span>
+        <section id="profile" class="content" style="margin-left:200px;">
+            <div class="profile-top" onclick="openPopup()">
+                <div class="image-container">
+                    <img id="user-pfp" src="<?php echo $pfp; ?>" alt="logo">
+                </div>
+                <div class="profile-desc">
+                    <h1><?php echo htmlspecialchars($name); ?></h1>
+                    <h3>Fecha de registro<?php echo htmlspecialchars($registrationDate); ?></h3>
+                </div>
             </div>
-            <form action="login.php">
-                <button class="rounded-button">Salir</button>
-            </form>
-        </div>
-    </div>
 
-    <div id="popup" class="popup">
-        <div class="popup-content">
-            <span class="close-btn" onclick="closePopup()">&times;</span>
-            <h2 style="text-align: center; color: #e0dddd; margin-bottom: 20px; ">Fotos de perfil</h2>
-                <div class="pfp-holder" style="display: flex; justify-content:center; align-items:center; gap:20px;">
-                <?php
-                    $servername = "localhost";
-                    $username = "root";
-                    $password = "";
-                    $dbname = "desktopapp";
+            <div class="profile-personal">
+                <h1>Informacion de la cuenta</h1>
+                <div class="detail-holder">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" value="<?php echo htmlspecialchars($email); ?>" readonly>
 
-                    $conn = new mysqli($servername, $username, $password, $dbname);
-
-                    if ($conn->connect_error) {
-                        die("Connection failed: " . $conn->connect_error);
-                    }
-
-                    $sql = "SELECT * FROM objetos WHERE userID = $id AND id_juego = 0";
-                    $result = $conn->query($sql);
-
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
-                            $isBought = $row['comprado'] == 1;
-
-                            $imageClass = $isBought ? "bought" : "not-bought";
-                            
-                            echo '<div class="image-container ' . $imageClass . '">';
-                            echo '<img src="' . htmlspecialchars($row['url_img']) . '" alt="' . htmlspecialchars($row['nombre']) . '" style="width:200px; height:200px; margin-bottom:10px;" onclick="updateProfilePicture(\'' . htmlspecialchars($row['url_img']) . '\', ' . ($isBought ? 'true' : 'false') . ')">';
-                            echo '</div>';
-                        }
-                    } else {
-                        echo "<p>No images found.</p>";
-                    }
-
-                    $conn->close();
-                ?>
-            </div>
-        </div>
-    </div>
-
-</section>
-
-
-
-<section id="activity" class="content" style="margin-left: 200px;">
-    <?php foreach ($games as $game): ?>
-        <div class="profile-top" style="margin-left: -200px">
-            <img src="<?php echo $game['img_juego']; ?>" alt="logo" style="border-radius: 10px; height:260px; width:200px;">
-            <div class="profile-desc" style="display:flex; flex-direction: column; gap:20px">
-                <?php 
-                $time = "0";
-                $last_session = "N/A";
-                $archivements = "000";
-
-                foreach ($activities as $activity) {
-                    if ($activity['id_juego'] == $game['id_juego']) {
-                        $time = $activity['time'];
-                        $last_session = $activity['last_session'];
-                        $archivements = $activity['archivements'];
-                        break;
-                    }
-                }
-
-                $appears = substr_count($archivements, '1');
-                ?>
-
-                <div class="test" style="display: flex;">
-                <svg width="70px" height="70px" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg" transform="rotate(180)">
-                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                            <g id="SVGRepo_iconCarrier">
-                                <path
-                                    d="M13 8L9 12M9 12L13 16M9 12H21M19.4845 7C17.8699 4.58803 15.1204 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C15.1204 21 17.8699 19.412 19.4845 17"
-                                    stroke="#6CA67E" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                                </path>
-                            </g>
-                        </svg>
-                    <div class="game-data" style="display: flex; flex-direction: column;">
-                        <h2 style="color:#e0dddd; margin-top:9px; margin-left:-2px;">Ultima sesion</h2>
-                        <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $last_session; ?></p>
+                    <label for="password">Contraseña</label>
+                    <div class="password-group">
+                        <input type="password" id="password" value="<?php echo htmlspecialchars($password); ?>"
+                            readonly>
+                        <span class="icon eye-icon" onclick="togglePasswordVisibility()">&#128065;</span>
                     </div>
                 </div>
-                <div class="test" style="display: flex;">
-                <svg style="margin-left:6px" fill="#6CA67E" height="56px" width="56px" version="1.1" id="Capa_1"
-                            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                            viewBox="0 0 125.668 125.668" xml:space="preserve">
-                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                            <g id="SVGRepo_iconCarrier">
-                                <g>
+            </div>
+
+            <div id="popup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn" onclick="closePopup()">&times;</span>
+                    <h2 style="text-align: center; color: #e0dddd; margin-bottom: 20px; ">Fotos de perfil</h2>
+                    <div class="pfp-holder"
+                        style="display: flex; justify-content:center; align-items:center; gap:20px;">
+                        <?php
+                        $servername = "localhost";
+                        $username = "root";
+                        $password = "";
+                        $dbname = "desktopapp";
+
+                        $conn = new mysqli($servername, $username, $password, $dbname);
+
+                        if ($conn->connect_error) {
+                            die("Connection failed: " . $conn->connect_error);
+                        }
+
+                        $sql = "SELECT * FROM objetos WHERE userID = $id AND id_juego = 0";
+                        $result = $conn->query($sql);
+
+                        if ($result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                                $isBought = $row['comprado'] == 1;
+
+                                $imageClass = $isBought ? "bought" : "not-bought";
+
+                                echo '<div class="image-container ' . $imageClass . '">';
+                                echo '<img src="' . htmlspecialchars($row['url_img']) . '" alt="' . htmlspecialchars($row['nombre']) . '" style="width:200px; height:200px; margin-bottom:10px;" onclick="updateProfilePicture(\'' . htmlspecialchars($row['url_img']) . '\', ' . ($isBought ? 'true' : 'false') . ')">';
+                                echo '</div>';
+                            }
+                        } else {
+                            echo "<p>No images found.</p>";
+                        }
+
+                        $conn->close();
+                        ?>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+
+        <section id="activity" class="content" style="margin-left: 200px;">
+            <?php foreach ($games as $game): ?>
+                <div class="profile-top" style="margin-left: -200px">
+                    <img src="<?php echo $game['img_juego']; ?>" alt="logo"
+                        style="border-radius: 10px; height:260px; width:200px;">
+                    <div class="profile-desc" style="display:flex; flex-direction: column; gap:20px">
+                        <?php
+                        $time = "0";
+                        $last_session = "N/A";
+                        $archivements = "000";
+
+                        foreach ($activities as $activity) {
+                            if ($activity['id_juego'] == $game['id_juego']) {
+                                $time = $activity['time'];
+                                $last_session = $activity['last_session'];
+                                $archivements = $activity['archivements'];
+                                break;
+                            }
+                        }
+
+                        $appears = substr_count($archivements, '1');
+                        ?>
+
+                        <div class="test" style="display: flex;">
+                            <svg width="70px" height="70px" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" transform="rotate(180)">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
                                     <path
-                                        d="M84.17,76.55l-16.9-9.557V32.102c0-2.541-2.061-4.601-4.602-4.601s-4.601,2.061-4.601,4.601v37.575 c0,0.059,0.016,0.115,0.017,0.174c0.006,0.162,0.025,0.319,0.048,0.479c0.021,0.146,0.042,0.291,0.076,0.433 c0.035,0.141,0.082,0.277,0.129,0.414c0.051,0.146,0.1,0.287,0.164,0.426c0.061,0.133,0.134,0.257,0.208,0.383 c0.075,0.127,0.148,0.254,0.234,0.374c0.088,0.122,0.188,0.235,0.288,0.349c0.097,0.11,0.192,0.217,0.299,0.317 c0.107,0.101,0.222,0.19,0.339,0.28c0.126,0.098,0.253,0.191,0.39,0.276c0.052,0.031,0.092,0.073,0.145,0.102L79.64,84.562 c0.716,0.404,1.493,0.597,2.261,0.597c1.605,0,3.163-0.841,4.009-2.337C87.161,80.608,86.381,77.801,84.17,76.55z">
-                                    </path>
-                                    <path
-                                        d="M62.834,0C28.187,0,0,28.187,0,62.834c0,34.646,28.187,62.834,62.834,62.834c34.646,0,62.834-28.188,62.834-62.834 C125.668,28.187,97.48,0,62.834,0z M66.834,115.501v-9.167h-8v9.167c-24.77-1.865-44.823-20.872-48.292-45.167h9.459v-8h-9.988 c0.258-27.558,21.716-50.126,48.821-52.167v9.167h8v-9.167c27.104,2.041,48.563,24.609,48.821,52.167h-9.487v8h8.958 C111.657,94.629,91.605,113.636,66.834,115.501z">
+                                        d="M13 8L9 12M9 12L13 16M9 12H21M19.4845 7C17.8699 4.58803 15.1204 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C15.1204 21 17.8699 19.412 19.4845 17"
+                                        stroke="#6CA67E" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                                     </path>
                                 </g>
-                            </g>
-                        </svg>
-                    <div class="game-data" style="display: flex; flex-direction: column; margin-left:9px; margin-top:3px;">
-                        <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Tiempo registrado</h2>
-                        <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $time;?></p>
-                    </div>
-                </div>
-                <div class="test" style="display: flex;">
-                <svg width="70px" height="70px" viewBox="0 0 16 16" version="1.1"
-                            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                            fill="#000000">
-                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                            <g id="SVGRepo_iconCarrier">
-                                <path fill="#6CA67E"
-                                    d="M10 12.2c-0.3 0-0.5-0.1-0.8-0.2l-1.2-0.5-1.2 0.5c-0.2 0.1-0.5 0.2-0.8 0.2-0.2 0-0.3 0-0.5-0.1l-0.5 3.9 3-2 3 2-0.6-3.9c-0.1 0.1-0.3 0.1-0.4 0.1z">
-                                </path>
-                                <path fill="#6CA67E"
-                                    d="M12.9 5.9c-0.1-0.2-0.1-0.5 0-0.7l0.6-1.2c0.2-0.4 0-0.9-0.5-1.1l-1.3-0.5c-0.2-0.1-0.4-0.3-0.5-0.5l-0.5-1.3c-0.1-0.4-0.4-0.6-0.7-0.6-0.1 0-0.3 0-0.4 0.1l-1.3 0.6c-0.1 0-0.2 0-0.3 0s-0.2 0-0.3-0.1l-1.3-0.5c-0.1-0.1-0.3-0.1-0.4-0.1-0.3 0-0.6 0.2-0.8 0.5l-0.5 1.4c0 0.2-0.2 0.4-0.4 0.5l-1.4 0.5c-0.4 0.1-0.6 0.6-0.4 1.1l0.6 1.3c0.1 0.2 0.1 0.5 0 0.7l-0.6 1.2c-0.2 0.4 0 0.9 0.5 1.1l1.3 0.5c0.2 0.1 0.4 0.3 0.5 0.5l0.5 1.3c0.1 0.4 0.4 0.6 0.7 0.6 0.1 0 0.2 0 0.3-0.1l1.3-0.6c0.1 0 0.2-0.1 0.3-0.1s0.2 0 0.3 0.1l1.3 0.6c0.1 0.1 0.2 0.1 0.3 0.1 0.3 0 0.6-0.2 0.8-0.5l0.5-1.3c0.1-0.2 0.3-0.4 0.5-0.5l1.3-0.5c0.4-0.2 0.7-0.7 0.5-1.1l-0.5-1.4zM8 9.6c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4c0 2.2-1.8 4-4 4z">
-                                </path>
-                                <path fill="#6CA67E"
-                                    d="M11 5.6c0 1.657-1.343 3-3 3s-3-1.343-3-3c0-1.657 1.343-3 3-3s3 1.343 3 3z">
-                                </path>
-                            </g>
-                        </svg>
-                    <div class="game-data" style="display: flex; flex-direction: column; margin-top:5px;">
-                        <h2>Logros</h2>
-                        <div style="display: flex; margin-top:2px;">
-                            <p style="font-size:0.9em; color:#b4afaf; margin-left:2px">
-                                <?php echo $appears; ?>/3
-                            </p>
-                            <progress max="3" value="<?php echo $appears; ?>" style="margin-left:4px;"></progress>
+                            </svg>
+                            <div class="game-data" style="display: flex; flex-direction: column;">
+                                <h2 style="color:#e0dddd; margin-top:9px; margin-left:-2px;">Ultima sesion</h2>
+                                <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $last_session; ?></p>
+                            </div>
+                        </div>
+                        <div class="test" style="display: flex;">
+                            <svg style="margin-left:6px" fill="#6CA67E" height="56px" width="56px" version="1.1" id="Capa_1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                viewBox="0 0 125.668 125.668" xml:space="preserve">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <g>
+                                        <path
+                                            d="M84.17,76.55l-16.9-9.557V32.102c0-2.541-2.061-4.601-4.602-4.601s-4.601,2.061-4.601,4.601v37.575 c0,0.059,0.016,0.115,0.017,0.174c0.006,0.162,0.025,0.319,0.048,0.479c0.021,0.146,0.042,0.291,0.076,0.433 c0.035,0.141,0.082,0.277,0.129,0.414c0.051,0.146,0.1,0.287,0.164,0.426c0.061,0.133,0.134,0.257,0.208,0.383 c0.075,0.127,0.148,0.254,0.234,0.374c0.088,0.122,0.188,0.235,0.288,0.349c0.097,0.11,0.192,0.217,0.299,0.317 c0.107,0.101,0.222,0.19,0.339,0.28c0.126,0.098,0.253,0.191,0.39,0.276c0.052,0.031,0.092,0.073,0.145,0.102L79.64,84.562 c0.716,0.404,1.493,0.597,2.261,0.597c1.605,0,3.163-0.841,4.009-2.337C87.161,80.608,86.381,77.801,84.17,76.55z">
+                                        </path>
+                                        <path
+                                            d="M62.834,0C28.187,0,0,28.187,0,62.834c0,34.646,28.187,62.834,62.834,62.834c34.646,0,62.834-28.188,62.834-62.834 C125.668,28.187,97.48,0,62.834,0z M66.834,115.501v-9.167h-8v9.167c-24.77-1.865-44.823-20.872-48.292-45.167h9.459v-8h-9.988 c0.258-27.558,21.716-50.126,48.821-52.167v9.167h8v-9.167c27.104,2.041,48.563,24.609,48.821,52.167h-9.487v8h8.958 C111.657,94.629,91.605,113.636,66.834,115.501z">
+                                        </path>
+                                    </g>
+                                </g>
+                            </svg>
+                            <div class="game-data"
+                                style="display: flex; flex-direction: column; margin-left:9px; margin-top:3px;">
+                                <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Tiempo registrado</h2>
+                                <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $time; ?></p>
+                            </div>
+                        </div>
+                        <div class="test" style="display: flex;">
+                            <svg width="70px" height="70px" viewBox="0 0 16 16" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                fill="#000000">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path fill="#6CA67E"
+                                        d="M10 12.2c-0.3 0-0.5-0.1-0.8-0.2l-1.2-0.5-1.2 0.5c-0.2 0.1-0.5 0.2-0.8 0.2-0.2 0-0.3 0-0.5-0.1l-0.5 3.9 3-2 3 2-0.6-3.9c-0.1 0.1-0.3 0.1-0.4 0.1z">
+                                    </path>
+                                    <path fill="#6CA67E"
+                                        d="M12.9 5.9c-0.1-0.2-0.1-0.5 0-0.7l0.6-1.2c0.2-0.4 0-0.9-0.5-1.1l-1.3-0.5c-0.2-0.1-0.4-0.3-0.5-0.5l-0.5-1.3c-0.1-0.4-0.4-0.6-0.7-0.6-0.1 0-0.3 0-0.4 0.1l-1.3 0.6c-0.1 0-0.2 0-0.3 0s-0.2 0-0.3-0.1l-1.3-0.5c-0.1-0.1-0.3-0.1-0.4-0.1-0.3 0-0.6 0.2-0.8 0.5l-0.5 1.4c0 0.2-0.2 0.4-0.4 0.5l-1.4 0.5c-0.4 0.1-0.6 0.6-0.4 1.1l0.6 1.3c0.1 0.2 0.1 0.5 0 0.7l-0.6 1.2c-0.2 0.4 0 0.9 0.5 1.1l1.3 0.5c0.2 0.1 0.4 0.3 0.5 0.5l0.5 1.3c0.1 0.4 0.4 0.6 0.7 0.6 0.1 0 0.2 0 0.3-0.1l1.3-0.6c0.1 0 0.2-0.1 0.3-0.1s0.2 0 0.3 0.1l1.3 0.6c0.1 0.1 0.2 0.1 0.3 0.1 0.3 0 0.6-0.2 0.8-0.5l0.5-1.3c0.1-0.2 0.3-0.4 0.5-0.5l1.3-0.5c0.4-0.2 0.7-0.7 0.5-1.1l-0.5-1.4zM8 9.6c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4c0 2.2-1.8 4-4 4z">
+                                    </path>
+                                    <path fill="#6CA67E"
+                                        d="M11 5.6c0 1.657-1.343 3-3 3s-3-1.343-3-3c0-1.657 1.343-3 3-3s3 1.343 3 3z">
+                                    </path>
+                                </g>
+                            </svg>
+                            <div class="game-data" style="display: flex; flex-direction: column; margin-top:5px;">
+                                <h2>Logros</h2>
+                                <div style="display: flex; margin-top:2px;">
+                                    <p style="font-size:0.9em; color:#b4afaf; margin-left:2px">
+                                        <?php echo $appears; ?>/3
+                                    </p>
+                                    <progress max="3" value="<?php echo $appears; ?>" style="margin-left:4px;"></progress>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    <?php endforeach; ?>
-</section>
+            <?php endforeach; ?>
+        </section>
 
 
         <section id="library" class="content library" style="margin-right: 60px">
             <div class="game-grid-container" style="gap: 60px;">
-            
-            <?php
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            $dbname = "desktopapp";
 
-            $conn = new mysqli($servername, $username, $password, $dbname);
+                <?php
+                $servername = "localhost";
+                $username = "root";
+                $password = "";
+                $dbname = "desktopapp";
 
-            $sql = "SELECT * FROM juegos WHERE id_juego >= 1";
-            $result = $conn->query($sql);
+                $conn = new mysqli($servername, $username, $password, $dbname);
 
-            if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
-                    echo <<<JUEGO
+                $sql = "SELECT * FROM juegos WHERE id_juego >= 1";
+                $result = $conn->query($sql);
+
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        echo <<<JUEGO
                         <div class="game-holder" style="cursor: pointer;" onclick="window.location.href='{$row['url']}'">
                             <img src="{$row['img_juego']}" alt="logo" style="height:260px; width:200px; border-radius: 10px">
                             <p style="margin-top:5px; margin-left:15px; font-size: 1.3em;">{$row['nombre']}</p>
                         </div>
                     JUEGO;
+                    }
+                } else {
+                    echo "0 results";
                 }
-            } else {
-                echo "0 results";
-            }
-            $conn->close();
-            ?>
+                $conn->close();
+                ?>
 
 
 
@@ -467,8 +507,8 @@ $conn->close();
                 </div>
             </div>
             <div class="game-grid-container" style="gap: 60px;">
-            
-            <?php
+
+                <?php
                 $servername = "localhost";
                 $username = "root";
                 $password = "";
@@ -481,14 +521,14 @@ $conn->close();
                 $result = $conn->query($sql);
 
                 if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
+                    while ($row = $result->fetch_assoc()) {
                         $id_objeto = $row['id_objeto'];
                         $comprado = $row['comprado'];
                         $precio = $row['precio'];
                         $blackoutClass = $comprado ? 'blackout' : '';
                         $display = $comprado ? 'none' : 'block';
                         $blackoutText = $comprado ? '<div class="blackout-text">COMPRADO</div>' : '';
- 
+
 
                         echo <<<TIENDA
                         <div class="game-holder" style="position: relative;">
@@ -527,7 +567,7 @@ $conn->close();
                 }
 
                 $conn->close();
-            ?>
+                ?>
 
 
 
@@ -548,8 +588,8 @@ $conn->close();
             }
         }
         function openPopup() {
-        var popup = document.getElementById("popup");
-        popup.style.display = "block";
+            var popup = document.getElementById("popup");
+            popup.style.display = "block";
         }
 
         function closePopup() {
@@ -558,32 +598,32 @@ $conn->close();
         }
 
         function updateProfilePicture(imageUrl, isBought) {
-    if (isBought) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "update_profile_picture.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            if (isBought) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "update_profile_picture.php", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                console.log("Ready State: " + xhr.readyState);
-                console.log("Status: " + xhr.status);
-                console.log("Response Text: " + xhr.responseText);
-                if (xhr.status === 200) {
-                    var placeholders = document.querySelectorAll("#user-pfp");
-                    placeholders.forEach(function(placeholder) {
-                        placeholder.src = imageUrl;
-                    });
-                } else {
-                    console.error("Error: " + xhr.status + " - " + xhr.statusText);
-                }
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        console.log("Ready State: " + xhr.readyState);
+                        console.log("Status: " + xhr.status);
+                        console.log("Response Text: " + xhr.responseText);
+                        if (xhr.status === 200) {
+                            var placeholders = document.querySelectorAll("#user-pfp");
+                            placeholders.forEach(function (placeholder) {
+                                placeholder.src = imageUrl;
+                            });
+                        } else {
+                            console.error("Error: " + xhr.status + " - " + xhr.statusText);
+                        }
+                    }
+                };
+
+                xhr.send("newProfilePicture=" + encodeURIComponent(imageUrl));
+            } else {
+                alert("Aun no compraste esta imagen");
             }
-        };
-
-        xhr.send("newProfilePicture=" + encodeURIComponent(imageUrl));
-    } else {
-        alert("Aun no compraste esta imagen");
-    }
-}
+        }
     </script>
 </body>
 

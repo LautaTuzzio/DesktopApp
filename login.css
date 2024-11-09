@@ -68,6 +68,15 @@ body {
   justify-content: center;
 }
 
+.star-container {
+  pointer-events: none;
+}
+
+
+.space {
+  pointer-events: none;
+}
+
 .wrap {
   display: flex;
   justify-content: center;
