@@ -405,8 +405,19 @@ $conn->close();
                             </svg>
                             <div class="game-data"
                                 style="display: flex; flex-direction: column; margin-left:9px; margin-top:3px;">
-                                <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Tiempo registrado</h2>
-                                <p style="font-size:0.9em; color:#b4afaf; margin-left:-1px"><?php echo $time; ?></p>
+                                <div style="display: flex; align-items: center;">
+                                    <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Tiempo registrado</h2>
+                                </div>
+                                <p class="time-row" style="font-size:0.9em; color:#b4afaf; margin-left:-1px">
+                                    <span id="time-<?php echo $game['id_juego']; ?>"
+                                        data-real-time="<?php echo $time; ?>">??:??:??</span>
+                                    <label class="time-toggle">
+                                        <input type="checkbox"
+                                            onchange="toggleTime(this, '<?php echo $game['id_juego']; ?>')">
+                                        <span class="checkmark"></span>
+                                        <span style="color: #b4afaf; font-size: 1.1em; margin-left:3px; margin-top: 3px;">Mostrar tiempo</span>
+                                    </label>
+                                </p>
                             </div>
                         </div>
                         <div class="test" style="display: flex;">
@@ -442,6 +453,22 @@ $conn->close();
             <?php endforeach; ?>
         </section>
 
+        <script>
+            function toggleTime(checkbox, gameId) {
+                const timeElement = document.getElementById('time-' + gameId);
+                let realTime = timeElement.getAttribute('data-real-time');
+
+                if (realTime === "0") {
+                    realTime = "00:00:00";
+                }
+
+                if (checkbox.checked) {
+                    timeElement.textContent = realTime;
+                } else {
+                    timeElement.textContent = '??:??:??';
+                }
+            }
+        </script>
 
         <section id="library" class="content library" style="margin-right: 60px">
             <div class="game-grid-container" style="gap: 60px;">
