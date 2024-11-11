@@ -238,13 +238,14 @@ $conn->close();
                     </a>
                     <script>
                         function confirmLogout(event) {
-                            event.preventDefault();
-
+                            event.preventDefault()
+                            
                             if (confirm('¿Estas seguro que quieres salir?')) {
-                                window.location.replace('login.php');
+                                window.electron.send('restart-app')
                             }else{
-                                window.location.href = 'index.php';
+                                window.electron.send('navigate-to', 'index.php')
                             }
+                            
 
                         }
                     </script>
