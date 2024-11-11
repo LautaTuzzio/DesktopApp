@@ -212,7 +212,7 @@ $conn->close();
                 </li>
 
                 <li>
-                    <a href="login.php" id="logout-link" onclick="return confirmLogout(event)">
+                    <a id="logout-link" onclick="return confirmLogout(event)">
                         <div class="option" onclick="showSection('shop', this)">
                             <svg fill="#e0dddd" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
                                 xmlns:xlink="http://www.w3.org/1999/xlink" width="25px" height="25px"
@@ -238,15 +238,17 @@ $conn->close();
                     </a>
                     <script>
                         function confirmLogout(event) {
-                            event.preventDefault()
+                            event.preventDefault();
                             
-                            if (confirm('¿Estas seguro que quieres salir?')) {
-                                window.electron.send('restart-app')
-                            }else{
-                                window.electron.send('navigate-to', 'index.php')
+                            if (confirm('¿Estás seguro que quieres salir?')) {
+                                const { ipcRenderer } = require('electron');
+                                ipcRenderer.send('restart-app');
+                            } else {
+                                const { ipcRenderer } = require('electron');
+                                ipcRenderer.send('navigate-to', 'index.php');
                             }
                             
-
+                            return false;
                         }
                     </script>
                 </li>
