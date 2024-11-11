@@ -238,17 +238,16 @@ $conn->close();
                     </a>
                     <script>
                         function confirmLogout(event) {
-                            event.preventDefault();
-                            
-                            if (confirm('¿Estás seguro que quieres salir?')) {
-                                const { ipcRenderer } = require('electron');
-                                ipcRenderer.send('restart-app');
+                            event.preventDefault()
+                            const { ipcRenderer } = require('electron')
+
+                            if (confirm('¿Estas seguro que quieres salir?')) {
+                                ipcRenderer.send('restart-app')
                             } else {
-                                const { ipcRenderer } = require('electron');
-                                ipcRenderer.send('navigate-to', 'index.php');
+                                ipcRenderer.send('navigate-to', 'index.php')
                             }
                             
-                            return false;
+                            return false
                         }
                     </script>
                 </li>
