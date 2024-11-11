@@ -405,19 +405,19 @@ $conn->close();
                                 </g>
                             </svg>
                             
-<div class="game-data" style="display: flex; flex-direction: column; margin-left:9px; margin-top:3px;">
-    <div style="display: flex; align-items: center;">
-        <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Tiempo registrado</h2>
-    </div>
-    <p class="time-row" style="font-size:0.9em; color:#b4afaf; margin-left:-1px">
-        <span id="time-<?php echo $game['id_juego']; ?>" data-real-time="<?php echo $time; ?>">??:??:??</span>
-        <label class="time-toggle">
-            <input type="checkbox" onchange="toggleTime(this, '<?php echo $game['id_juego']; ?>')">
-            <span class="checkmark"></span>
-            <span style="color: #b4afaf; font-size: 1em; transform: translateY(3px); margin-left:2px;">Mostrar tiempo</span>
-        </label>
-    </p>
-</div>
+                        <div class="game-data" style="display: flex; flex-direction: column; margin-left:9px; margin-top:3px;">
+                            <div style="display: flex; align-items: center;">
+                                <h2 style="color:#e0dddd; margin-top:2px; margin-left:-4px;">Tiempo registrado</h2>
+                            </div>
+                            <p class="time-row" style="font-size:0.9em; color:#b4afaf; margin-left:-1px">
+                                <span id="time-<?php echo $game['id_juego']; ?>" data-real-time="<?php echo $time; ?>">??:??:??</span>
+                                <label class="time-toggle">
+                                    <input type="checkbox" onchange="toggleTime(this, '<?php echo $game['id_juego']; ?>')">
+                                    <span class="checkmark"></span>
+                                    <span style="color: #b4afaf; font-size: 1em; transform: translateY(3px); margin-left:2px;">Mostrar tiempo</span>
+                                </label>
+                            </p>
+                        </div>
 
                         </div>
                         <div class="test" style="display: flex;">
