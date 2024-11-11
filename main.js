@@ -9,8 +9,8 @@ function createWindow() {
     frame: true, 
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: false, 
-      contextIsolation: true  
+      nodeIntegration: true, 
+      contextIsolation: false  
     }
   })
 
@@ -25,7 +25,7 @@ function createWindow() {
     app.exit(0)
   })
 
-  Menu.setApplicationMenu(null)
+ Menu.setApplicationMenu(null)
 }
 
 app.whenReady().then(() => {
