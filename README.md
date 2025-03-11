@@ -1,4 +1,4 @@
-# 🎮 Arcade - Tu Lanzador de Juegos Retro 🕹️  
+# 🎮 Arcade - Juegos Retro 🕹️  
 
 ¡Bienvenido a **Arcade**! 🎉 Este es un lanzador de juegos de escritorio diseñado para traer de vuelta la nostalgia de los clásicos arcade 🎰, recreados con amor ❤️ en **Python**. La aplicación en sí está desarrollada en **PHP** y te permite jugar títulos icónicos como **Tetris** y **Galaga** en una experiencia renovada. 🚀  
 
